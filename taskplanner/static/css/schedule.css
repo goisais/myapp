@@ -35,3 +35,25 @@
   font-size: 16px;
   margin-top: 20px;
 }
+
+.tab-menu {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 12px;
+  border-radius: 12px;
+  background: #ddd;
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
+
+.tab.active {
+  background: #555;
+  color: white;
+}

@@ -2,6 +2,12 @@
 {% block title %}予定登録{% endblock %}
 
 {% block content %}
+
+<div class="tab-menu">
+  <a href="{% url 'schedule_create' %}" class="tab active">予定入力</a>
+  <a href="{% url 'schedule_priority' %}" class="tab">優先順位リスト</a>
+</div>
+
 <div class="schedule-container">
   <h2>予定登録</h2>
 

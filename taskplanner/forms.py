@@ -12,4 +12,5 @@ class ScheduleForm(forms.ModelForm):
             "priority": forms.Select(attrs={"class": "input-box"}),
             "duration": forms.TextInput(attrs={"class": "input-box"}),
             "memo": forms.Textarea(attrs={"class": "textarea-box"}),
+            "date": forms.DateTimeInput(attrs={"type": "datetime-local"}),
         }
