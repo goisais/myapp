@@ -1,0 +1,52 @@
+{% extends "saving/base.html" %}
+{% load static %}
+
+{% block title %}カレンダー{% endblock %}
+
+{% block content %}
+<div class="calendar-container">
+    <div class="calendar-header">
+        <a href="?year={{ year }}&month={{ month|add:'-1' }}">&lt;</a>
+        <span>{{ year }}年{{ month }}月</span>
+        <a href="?year={{ year }}&month={{ month|add:'1' }}">&gt;</a>
+    </div>
+    <table class="calendar-table">
+        <tr>
+            <th>日</th>
+            <th>月</th>
+            <th>火</th>
+            <th>水</th>
+            <th>木</th>
+            <th>金</th>
+            <th>土</th>
+        </tr>
+        {% for week in weeks %}
+        <tr>
+            {% for day in week %}
+            <td>
+                {% if day == selected_day %}
+                <span class="selected-day">{{ day }}</span>
+                {% elif day > 0 %}
+                <a href="?year={{ year }}&month={{ month }}&day={{ day }}">{{ day }}</a>
+                {% else %}
+                &nbsp;
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+<div class="schedule-list">
+    <h3>{{ month }}月{{ selected_day }}日の予定</h3>
+    {% for schedule in schedules %}
+    <div class="schedule-item">
+        <div class="schedule-time">{{ schedule.start_time|default:"" }}</div>
+        <div class="schedule-title">{{ schedule.title }}</div>
+        <div class="schedule-priority priority-{{ schedule.priority }}">{{ schedule.priority }}</div>
+    </div>
+    {% empty %}
+    <div>予定はありません</div>
+    {% endfor %}
+</div>
+{% endblock %}
