@@ -1,0 +1,49 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}My App{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <!-- アイコン（任意） -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="logo">ロゴ</div>
+      <div class="add-btn">予定を追加</div>
+    </div>
+  </header>
+
+  <!-- メイン -->
+  <main class="content">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- フッター -->
+  <footer class="app-footer">
+    <div class="nav-item">
+      <span class="material-icons">home</span>
+      <p>ホーム</p>
+    </div>
+    <div class="nav-item">
+      <span class="material-icons">calendar_month</span>
+      <p>カレンダー</p>
+    </div>
+    <div class="nav-item">
+      <span class="material-icons">list</span>
+      <p>リスト</p>
+    </div>
+    <div class="nav-item">
+      <span class="material-icons">settings</span>
+      <p>設定</p>
+    </div>
+  </footer>
+
+</body>
+</html>
