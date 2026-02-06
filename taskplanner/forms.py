@@ -15,14 +15,22 @@ class ScheduleForm(forms.ModelForm):
 
     duration_choice = forms.ChoiceField(
         choices=DURATION_CHOICES,
-        widget=forms.Select(attrs={"class": "input-box", "onchange": "toggleDurationInput(this)"}),
+        widget=forms.Select(
+            attrs={"class": "input-box", "onchange": "toggleDurationInput(this)"}
+        ),
         required=False,
-        label="所要時間"
+        label="所要時間",
     )
     duration = forms.CharField(
         required=False,
-        widget=forms.TextInput(attrs={"class": "input-box", "placeholder": "例: 2時間15分", "style": "display:none;"}),
-        label="所要時間(その他)"
+        widget=forms.TextInput(
+            attrs={
+                "class": "input-box",
+                "placeholder": "例: 2時間15分",
+                "style": "display:none;",
+            }
+        ),
+        label="所要時間(その他)",
     )
 
     class Meta:
@@ -54,5 +62,7 @@ class ScheduleForm(forms.ModelForm):
                 self.add_error("duration", "所要時間を入力してください")
             cleaned_data["duration"] = duration
         else:
-            cleaned_data["duration"] = dict(self.DURATION_CHOICES).get(duration_choice, "")
+            cleaned_data["duration"] = dict(self.DURATION_CHOICES).get(
+                duration_choice, ""
+            )
         return cleaned_data

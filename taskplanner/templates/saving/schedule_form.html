@@ -37,21 +37,21 @@
     </div>
 
     <script>
-    function toggleDurationInput(select) {
-      var otherInput = document.querySelector('input[name="duration"]');
-      if (select.value === 'other') {
-        otherInput.style.display = '';
-      } else {
-        otherInput.style.display = 'none';
-        otherInput.value = '';
+      function toggleDurationInput(select) {
+        var otherInput = document.querySelector('input[name="duration"]');
+        if (select.value === 'other') {
+          otherInput.style.display = '';
+        } else {
+          otherInput.style.display = 'none';
+          otherInput.value = '';
+        }
       }
-    }
-    // 初期表示時の切り替え
-    document.addEventListener('DOMContentLoaded', function() {
-      var select = document.querySelector('select[name="duration_choice"]');
-      if (select) toggleDurationInput(select);
-      select && select.addEventListener('change', function() { toggleDurationInput(this); });
-    });
+      // 初期表示時の切り替え
+      document.addEventListener('DOMContentLoaded', function () {
+        var select = document.querySelector('select[name="duration_choice"]');
+        if (select) toggleDurationInput(select);
+        select && select.addEventListener('change', function () { toggleDurationInput(this); });
+      });
     </script>
 
     <div class="form-group">
