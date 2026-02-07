@@ -38,12 +38,23 @@
     </table>
 </div>
 <div class="schedule-list">
+    表示日: {{ year }}-{{ month }}-{{ selected_day }}
+    件数: {{ schedules|length }}
     <h3>{{ month }}月{{ selected_day }}日の予定</h3>
     {% for schedule in schedules %}
     <div class="schedule-item">
-        <div class="schedule-time">{{ schedule.start_time|default:"" }}</div>
+        <div class="schedule-time">
+            {{ schedule.date|date:"H:i" }}
+            {% if schedule.end_time %} - {{ schedule.end_time|time:"H:i" }}{% endif %}
+        </div>
         <div class="schedule-title">{{ schedule.title }}</div>
-        <div class="schedule-priority priority-{{ schedule.priority }}">{{ schedule.priority }}</div>
+        <div class="schedule-duration">{{ schedule.duration }}</div>
+        <div class="schedule-priority priority-{{ schedule.priority }}">
+            {% if schedule.priority == 1 %}高{% elif schedule.priority == 2 %}中{% else %}低{% endif %}
+        </div>
+        {% if schedule.memo %}
+        <div class="schedule-memo">{{ schedule.memo }}</div>
+        {% endif %}
     </div>
     {% empty %}
     <div>予定はありません</div>

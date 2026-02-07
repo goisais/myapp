@@ -1,10 +1,39 @@
 from .forms import ScheduleForm
 from django.shortcuts import render, redirect
-
 from .models import Schedule
-
-import calendar
 from datetime import date, datetime, timedelta
+from django.utils import timezone
+import calendar
+
+
+def calendar_view(request):
+    today = date.today()
+    year = int(request.GET.get("year", today.year))
+    month = int(request.GET.get("month", today.month))
+    selected_day = int(request.GET.get("day", today.day))
+
+    cal = calendar.Calendar(firstweekday=6)
+    weeks = cal.monthdayscalendar(year, month)
+
+    # JSTで1日の開始を作る
+    jst = timezone.get_current_timezone()
+    start = timezone.make_aware(datetime(year, month, selected_day, 0, 0, 0), jst)
+    end = start + timedelta(days=1)
+
+    schedules = Schedule.objects.filter(
+        date__gte=start,
+        date__lt=end
+    ).order_by("date")
+
+    context = {
+        "year": year,
+        "month": month,
+        "weeks": weeks,
+        "selected_day": selected_day,
+        "schedules": schedules,
+        "today": today,
+    }
+    return render(request, "saving/calendar.html", context)
 
 
 def schedule_priority_list(request):
@@ -18,81 +47,23 @@ def schedule_create(request):
         if form.is_valid():
             schedule = form.save(commit=False)
 
-            # 開始時間
-            schedule.start_time = schedule.date
+            minutes = int(form.cleaned_data["duration"] or 0)
 
-            # POSTから取得
-            minutes = request.POST.get("duration_choice")
+            schedule.start_time = schedule.date.time()
 
-            if not minutes:
-                minutes = request.POST.get("duration", 0)
-
-            minutes = int(minutes)
-
-            # 終了時間
-            schedule.end_time = schedule.start_time + timedelta(minutes=minutes)
+            end_datetime = schedule.date + timedelta(minutes=minutes)
+            schedule.end_time = end_datetime.time()
 
             schedule.save()
-            return redirect("schedule_create")
+
+            return redirect(
+                f"/calendar/?year={schedule.date.year}&month={schedule.date.month}&day={schedule.date.day}"
+            )
     else:
         form = ScheduleForm()
 
     return render(request, "saving/schedule_form.html", {"form": form})
-# def schedule_create(request):
-#     if request.method == "POST":
-#         form = ScheduleForm(request.POST)
-#         if form.is_valid():
-#             schedule = form.save(commit=False)
-#             schedule.start_time = schedule.date
-#             schedule.save()
-#             return redirect("schedule_create")
-#     else:
-#         form = ScheduleForm()
-
-#     return render(request, "saving/schedule_form.html", {"form": form})
 
 
 def base(request):
     return render(request, "saving/base.html")
-
-
-# カレンダー画面ビュー
-def calendar_view(request):
-    today = date.today()
-    year = request.GET.get("year", today.year)
-    month = request.GET.get("month", today.month)
-    try:
-        year = int(year)
-        month = int(month)
-    except ValueError:
-        year = today.year
-        month = today.month
-
-    cal = calendar.Calendar()
-    month_days = list(cal.itermonthdays(year, month))
-    month_days = month_days[:35]  # 5週分だけ使う場合
-    weeks = [month_days[i : i + 7] for i in range(0, len(month_days), 7)]
-
-    # 選択日
-    selected_day = request.GET.get("day", today.day)
-    try:
-        selected_day = int(selected_day)
-    except ValueError:
-        selected_day = today.day
-
-    # 選択日の予定（DateTimeField対応）
-    try:
-        selected_date = datetime(year, month, selected_day).date()
-        schedules = Schedule.objects.filter(date__date=selected_date)
-    except Exception:
-        schedules = Schedule.objects.none()
-
-    context = {
-        "year": year,
-        "month": month,
-        "weeks": weeks,
-        "selected_day": selected_day,
-        "schedules": schedules,
-        "today": today,
-    }
-    return render(request, "saving/calendar.html", context)
