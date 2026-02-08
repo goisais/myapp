@@ -1,6 +1,10 @@
 {% extends "saving/base.html" %}
 {% load static %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'saving/calendar.css' %}">
+{% endblock %}
+
 {% block title %}カレンダー{% endblock %}
 
 {% block content %}
@@ -38,7 +42,6 @@
     </table>
 </div>
 <div class="schedule-list">
-    表示日: {{ year }}-{{ month }}-{{ selected_day }}
     件数: {{ schedules|length }}
     <h3>{{ month }}月{{ selected_day }}日の予定</h3>
     {% for schedule in schedules %}
@@ -48,7 +51,7 @@
             {% if schedule.end_time %} - {{ schedule.end_time|time:"H:i" }}{% endif %}
         </div>
         <div class="schedule-title">{{ schedule.title }}</div>
-        <div class="schedule-duration">{{ schedule.duration }}</div>
+        <div class="schedule-duration">{{ schedule.get_duration_display }}</div>
         <div class="schedule-priority priority-{{ schedule.priority }}">
             {% if schedule.priority == 1 %}高{% elif schedule.priority == 2 %}中{% else %}低{% endif %}
         </div>

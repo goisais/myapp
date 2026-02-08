@@ -24,21 +24,13 @@ class ScheduleForm(forms.ModelForm):
 
     class Meta:
         model = Schedule
-        fields = "__all__"
+        fields = ["title", "date", "priority", "duration", "memo"]
         widgets = {
             "title": forms.TextInput(attrs={"class": "input-box"}),
             "date": forms.DateTimeInput(
-                attrs={"type": "datetime-local", "class": "input-box"}
+                format="%Y-%m-%dT%H:%M",
+                attrs={"type": "datetime-local", "class": "input-box"},
             ),
             "priority": forms.Select(attrs={"class": "input-box"}),
             "memo": forms.Textarea(attrs={"class": "textarea-box"}),
         }
-
-
-fields = [
-    "title",
-    "date",
-    "priority",
-    "duration",
-    "memo",
-]

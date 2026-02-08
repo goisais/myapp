@@ -1,21 +1,22 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}My App{% endblock %}</title>
-  <!-- CSS -->
-  <link rel="stylesheet" href="{% static 'css/base.css' %}">
-  <link rel="stylesheet" href="{% static 'css/schedule.css' %}">
+
+  <!-- 共通CSS -->
+  <link rel="stylesheet" href="{% static 'saving/base.css' %}">
+
+  <!-- ページ専用CSS（各テンプレ側で追加する） -->
+  {% block extra_css %}{% endblock %}
+
   <!-- アイコン（任意） -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
 <body>
-
   <!-- ヘッダー -->
   <header class="app-header">
     <div class="header-inner">
@@ -26,8 +27,7 @@
 
   <!-- メイン -->
   <main class="content">
-    {% block content %}
-    {% endblock %}
+    {% block content %}{% endblock %}
   </main>
 
   <!-- フッター -->
@@ -53,7 +53,5 @@
       <p>設定</p>
     </div>
   </footer>
-
 </body>
-
 </html>
