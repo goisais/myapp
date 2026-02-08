@@ -40,13 +40,20 @@ body {
   justify-content: space-between;
 }
 
-.logo {
-  font-weight: bold;
+/* ページタイトル */
+.header {
   font-size: 18px;
+  font-weight: bold;
 }
 
-.add-btn {
+.header-inner a {
+  text-decoration: none;
+  color: #333;
   font-size: 14px;
+}
+
+.add-btn a {
+  text-decoration: none;
   color: #333;
 }
 

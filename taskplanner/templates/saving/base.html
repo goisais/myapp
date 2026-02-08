@@ -20,8 +20,10 @@
   <!-- ヘッダー -->
   <header class="app-header">
     <div class="header-inner">
-      <div class="logo">ロゴ</div>
-      <div class="add-btn">予定を追加</div>
+      <div class="header">
+      {% block header %}ホーム{% endblock %}
+    </div>
+      <a href="{% url 'schedule_create' %}">予定を追加</a>
     </div>
   </header>
 
