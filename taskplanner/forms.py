@@ -1,6 +1,19 @@
 from django import forms
-from .models import Schedule
+from .models import Schedule, PlanTask
 import itertools
+
+
+class PlanTaskForm(forms.ModelForm):
+    class Meta:
+        model = PlanTask
+        fields = ["title", "estimated_minutes", "deadline", "priority", "memo"]
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "input-box"}),
+            "estimated_minutes": forms.NumberInput(attrs={"class": "input-box"}),
+            "deadline": forms.DateInput(attrs={"type": "date", "class": "input-box"}),
+            "priority": forms.Select(attrs={"class": "input-box"}),
+            "memo": forms.Textarea(attrs={"class": "textarea-box"}),
+        }
 
 
 def generate_duration_choices():

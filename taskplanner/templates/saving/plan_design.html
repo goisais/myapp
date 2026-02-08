@@ -1,0 +1,65 @@
+{% extends "saving/base.html" %}
+
+{% load static %}
+
+{% block header %}
+プラン設計
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'saving/plan_design.css' %}">
+{% endblock %}
+
+{% block title %}プラン設計{% endblock %}
+
+{% block content %}
+<div class="schedule-container">
+
+  <h2>プラン設計</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label>やりたい事</label>
+      {{ form.title }}
+    </div>
+
+    <div class="form-group">
+      <label>所要時間（分）</label>
+      {{ form.estimated_minutes }}
+    </div>
+
+    <div class="form-group">
+      <label>締切</label>
+      {{ form.deadline }}
+    </div>
+
+    <div class="form-group">
+      <label>優先度</label>
+      {{ form.priority }}
+    </div>
+
+    <div class="form-group">
+      <label>メモ</label>
+      {{ form.memo }}
+    </div>
+
+    <button type="submit" class="submit-btn">
+      追加
+    </button>
+  </form>
+
+  <hr>
+
+  <h3>登録済みタスク</h3>
+
+  {% for t in tasks %}
+    <div class="schedule-item">
+      <b>{{ t.title }}</b><br>
+      所要時間: {{ t.estimated_minutes }}分 /
+      優先度: {{ t.get_priority_display }}
+    </div>
+  {% endfor %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "saving/base.html" %}
+
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'saving/schedule_priority.css' %}">
+{% endblock %}
+
+{% block title %}優先順位リスト{% endblock %}
+{% block content %}
+  <h2>重要度別の予定</h2>
+
+  {% if schedules %}
+    <ul>
+      {% for schedule in schedules %}
+        <li>
+          {{ schedule.date|date:"Y-m-d H:i" }} /
+          {{ schedule.title }} /
+          重要度: {{ schedule.get_priority_display }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>予定がありません</p>
+  {% endif %}
+{% endblock %}

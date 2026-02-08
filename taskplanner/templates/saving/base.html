@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,8 +22,8 @@
   <header class="app-header">
     <div class="header-inner">
       <div class="header">
-      {% block header %}ホーム{% endblock %}
-    </div>
+        {% block header %}ホーム{% endblock %}
+      </div>
       <a href="{% url 'schedule_create' %}">予定を追加</a>
     </div>
   </header>
@@ -46,14 +47,15 @@
         <p>カレンダー</p>
       </a>
     </div>
-    <div class="nav-item">
-      <span class="material-icons">list</span>
-      <p>リスト</p>
-    </div>
+    <a href="{% url 'plan_design' %}" class="nav-item">
+      <span class="material-icons">auto_awesome</span>
+      <p>プラン設計</p>
+    </a>
     <div class="nav-item">
       <span class="material-icons">settings</span>
       <p>設定</p>
     </div>
   </footer>
 </body>
+
 </html>

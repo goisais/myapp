@@ -25,15 +25,13 @@ class Schedule(models.Model):
             return "0分"
         text = str(self.duration)
 
-        # すでに「分」や「時間」が含まれている場合はそのまま返す
         if "分" in text or "時間" in text:
             return text
 
-        # 数字だけのときだけ計算
         try:
             total = int(text)
         except ValueError:
-            return text  # 変な値でも落ちないようにする
+            return text
 
         h = total // 60
         m = total % 60
@@ -41,3 +39,24 @@ class Schedule(models.Model):
         if h > 0:
             return f"{h}時間{m}分"
         return f"{m}分"
+
+
+class PlanTask(models.Model):
+    title = models.CharField(max_length=100)
+    memo = models.TextField(blank=True)
+
+    estimated_minutes = models.IntegerField(null=True, blank=True)
+
+    PRIORITY_CHOICES = [
+        (1, "高"),
+        (2, "中"),
+        (3, "低"),
+    ]
+    priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
+
+    deadline = models.DateField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title

@@ -14,9 +14,9 @@
 {% block content %}
 <div class="calendar-container">
     <div class="calendar-header">
-        <a href="?year={{ year }}&month={{ month|add:'-1' }}">&lt;</a>
+        <a href="?year={{ prev_year }}&month={{ prev_month }}">&lt;</a>
         <span>{{ year }}年{{ month }}月</span>
-        <a href="?year={{ year }}&month={{ month|add:'1' }}">&gt;</a>
+        <a href="?year={{ next_year }}&month={{ next_month }}">&gt;</a>
     </div>
     <table class="calendar-table">
         <tr>

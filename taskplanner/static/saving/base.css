@@ -92,6 +92,13 @@ body {
   margin-bottom: 2px;
 }
 
+.nav-item,
+.nav-item:link,
+.nav-item:visited {
+  text-decoration: none;
+  color: inherit;
+}
+
 /* ===== スマホ微調整 ===== */
 @media (max-width: 480px) {
   .header-inner {

@@ -7,4 +7,6 @@ urlpatterns = [
     path("", views.schedule_create, name="schedule_create"),
     path("schedule/priority/", views.schedule_priority_list, name="schedule_priority"),
     path("calendar/", views.calendar_view, name="calendar"),
+    path("plan/", views.plan_design_view, name="plan_design"),
 ]
+
