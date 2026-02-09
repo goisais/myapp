@@ -1,7 +1,7 @@
 from .forms import ScheduleForm, PlanTaskForm
 from django.shortcuts import render, redirect
 from .models import Schedule, PlanTask, PlanSuggestion
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone as dt_timezone
 from django.utils import timezone
 import calendar
 
@@ -31,7 +31,7 @@ def plan_ai_view(request):
 
 def plan_apply(request):
     if request.method != "POST":
-        return redirect("plan_design")
+        return redirect("plan_task")
 
     suggestions = PlanSuggestion.objects.select_related("task")
 
@@ -51,7 +51,7 @@ def plan_apply(request):
 
 def plan_generate(request):
     if request.method != "POST":
-        return redirect("plan_design")
+        return redirect("plan_tasuk")
 
     # 古い提案を削除
     PlanSuggestion.objects.all().delete()
@@ -63,11 +63,10 @@ def plan_generate(request):
         tasks,
         key=lambda t: (
             t.priority,
-            t.deadline or datetime.max.date(),
+            t.deadline or datetime.max.replace(tzinfo=dt_timezone.utc),
             t.estimated_minutes or 9999,
         ),
     )
-
     base = timezone.now().replace(hour=9, minute=0, second=0, microsecond=0)
     order = 1
 
@@ -86,7 +85,7 @@ def plan_generate(request):
         base = end + timedelta(minutes=30)
         order += 1
 
-    return redirect("plan_design")
+    return redirect("plan_ai")
 
 
 def calendar_view(request):
@@ -141,10 +140,7 @@ def calendar_view(request):
     start = timezone.make_aware(datetime(year, month, selected_day, 0, 0, 0), jst)
     end = start + timedelta(days=1)
 
-    schedules = Schedule.objects.filter(
-        date__gte=start,
-        date__lt=end
-    ).order_by("date")
+    schedules = Schedule.objects.filter(date__gte=start, date__lt=end).order_by("date")
 
     context = {
         "year": year,
@@ -172,7 +168,7 @@ def schedule_create(request):
         if form.is_valid():
             schedule = form.save(commit=False)
 
-            minutes = int(form.cleaned_data["duration"] or 0)
+            minutes = int(form.cleaned_data.get("duration") or 0)
 
             schedule.start_time = schedule.date.time()
 
