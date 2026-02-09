@@ -172,6 +172,7 @@
     background: #bbb;
 }
 
+
 /* スマホ */
 @media (max-width: 480px) {
     .schedule-item {

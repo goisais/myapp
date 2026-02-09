@@ -54,9 +54,17 @@ class PlanTask(models.Model):
     ]
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
 
-    deadline = models.DateField(null=True, blank=True)
+    deadline = models.DateTimeField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
+
+
+class PlanSuggestion(models.Model):
+    task = models.ForeignKey("PlanTask", on_delete=models.CASCADE)
+    suggested_start = models.DateTimeField()
+    suggested_end = models.DateTimeField()
+    order = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -1,3 +1,4 @@
+/* ========== 共通リセット ========== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -9,16 +10,7 @@ body {
   background: #f5f5f5;
 }
 
-/* 共通幅ラッパー */
-.app-wrapper {
-  max-width: 480px;
-  margin: 0 auto;
-  background: #fff;
-  min-height: 100vh;
-  position: relative;
-}
-
-/* ===== ヘッダー ===== */
+/* ========== ヘッダー ========== */
 .app-header {
   position: fixed;
   top: 0;
@@ -40,31 +32,26 @@ body {
   justify-content: space-between;
 }
 
-/* ページタイトル */
 .header {
   font-size: 18px;
   font-weight: bold;
 }
 
+/* ヘッダー右側リンク（予定を追加） */
 .header-inner a {
   text-decoration: none;
   color: #333;
   font-size: 14px;
 }
 
-.add-btn a {
-  text-decoration: none;
-  color: #333;
-}
-
-/* ===== メイン ===== */
+/* ========== メイン ========== */
 .content {
-  padding: 80px 16px 90px;
+  padding: 80px 16px 90px; /* header 70 + 余白 / footer 70 + 余白 */
   max-width: 480px;
   margin: 0 auto;
 }
 
-/* ===== フッター ===== */
+/* ========== フッター ========== */
 .app-footer {
   position: fixed;
   bottom: 0;
@@ -74,46 +61,51 @@ body {
   background: #ffffff;
   border-top: 1px solid #ddd;
   display: flex;
-  justify-content: space-around;
-  align-items: center;
   left: 50%;
   transform: translateX(-50%);
 }
 
-.nav-item {
-  text-align: center;
+/* ここが一番大事：a.nav-item をボタン化して、下線を消す */
+.app-footer .nav-item {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  text-decoration: none; /* 下線消す */
+  color: #444;           /* 文字色 */
   font-size: 12px;
+}
+
+/* クリック後の visited でも色や下線が変わらないようにする */
+.app-footer .nav-item:link,
+.app-footer .nav-item:visited,
+.app-footer .nav-item:hover,
+.app-footer .nav-item:active {
+  text-decoration: none;
   color: #444;
 }
 
-.nav-item .material-icons {
-  display: block;
+/* アイコン */
+.app-footer .material-icons {
   font-size: 24px;
-  margin-bottom: 2px;
 }
 
-.nav-item,
-.nav-item:link,
-.nav-item:visited {
-  text-decoration: none;
-  color: inherit;
+/* テキスト */
+.app-footer .nav-item p {
+  line-height: 1;
 }
 
-/* ===== スマホ微調整 ===== */
+/* ========== スマホ微調整 ========== */
 @media (max-width: 480px) {
   .header-inner {
     padding: 0 16px;
   }
 
-  .logo {
-    font-size: 16px;
-  }
-
-  .add-btn {
-    font-size: 13px;
-  }
-
-  .nav-item {
+  .app-footer .nav-item {
     font-size: 11px;
   }
 }

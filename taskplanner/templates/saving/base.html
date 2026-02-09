@@ -34,28 +34,28 @@
   </main>
 
   <!-- フッター -->
-  <footer class="app-footer">
-    <div class="nav-item">
-      <a href="/" style="text-decoration:none;color:inherit">
-        <span class="material-icons">home</span>
-        <p>ホーム</p>
-      </a>
-    </div>
-    <div class="nav-item">
-      <a href="/calendar/" style="text-decoration:none;color:inherit">
-        <span class="material-icons">calendar_month</span>
-        <p>カレンダー</p>
-      </a>
-    </div>
-    <a href="{% url 'plan_design' %}" class="nav-item">
-      <span class="material-icons">auto_awesome</span>
-      <p>プラン設計</p>
-    </a>
-    <div class="nav-item">
-      <span class="material-icons">settings</span>
-      <p>設定</p>
-    </div>
-  </footer>
+   <footer class="app-footer">
+  <a href="{% url 'schedule_create' %}" class="nav-item">
+    <span class="material-icons">home</span>
+    <p>ホーム</p>
+  </a>
+
+  <a href="{% url 'calendar' %}" class="nav-item">
+    <span class="material-icons">calendar_month</span>
+    <p>カレンダー</p>
+  </a>
+
+  <a href="{% url 'plan_task' %}" class="nav-item">
+    <span class="material-icons">auto_awesome</span>
+    <p>プラン設計</p>
+  </a>
+
+  <a href="#" class="nav-item">
+    <span class="material-icons">settings</span>
+    <p>設定</p>
+  </a>
+</footer>
+
 </body>
 
 </html>

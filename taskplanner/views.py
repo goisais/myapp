@@ -1,30 +1,92 @@
 from .forms import ScheduleForm, PlanTaskForm
 from django.shortcuts import render, redirect
-from .models import Schedule, PlanTask
+from .models import Schedule, PlanTask, PlanSuggestion
 from datetime import date, datetime, timedelta
 from django.utils import timezone
 import calendar
 
 
-def plan_design_view(request):
+def plan_task_view(request):
     if request.method == "POST":
         form = PlanTaskForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("plan_design")
+            return redirect("plan_task")
     else:
         form = PlanTaskForm()
 
     tasks = PlanTask.objects.order_by("-created_at")
+    return render(request, "saving/plan_task.html", {"form": form, "tasks": tasks})
 
+
+def plan_ai_view(request):
+    tasks = PlanTask.objects.order_by("-created_at")
+    suggestions = PlanSuggestion.objects.select_related("task").order_by("order")
     return render(
         request,
-        "saving/plan_design.html",
-        {
-            "form": form,
-            "tasks": tasks,
-        },
+        "saving/plan_ai.html",
+        {"tasks": tasks, "suggestions": suggestions},
     )
+
+
+def plan_apply(request):
+    if request.method != "POST":
+        return redirect("plan_design")
+
+    suggestions = PlanSuggestion.objects.select_related("task")
+
+    for s in suggestions:
+        Schedule.objects.create(
+            title=s.task.title,
+            memo=s.task.memo,
+            date=s.suggested_start,
+            start_time=s.suggested_start.time(),
+            end_time=s.suggested_end.time(),
+            priority=s.task.priority,
+            duration=str(s.task.estimated_minutes or 60),
+        )
+
+    return redirect("calendar")
+
+
+def plan_generate(request):
+    if request.method != "POST":
+        return redirect("plan_design")
+
+    # 古い提案を削除
+    PlanSuggestion.objects.all().delete()
+
+    tasks = PlanTask.objects.all()
+
+    # 疑似AI並び替え：優先度→締切→所要時間
+    tasks = sorted(
+        tasks,
+        key=lambda t: (
+            t.priority,
+            t.deadline or datetime.max.date(),
+            t.estimated_minutes or 9999,
+        ),
+    )
+
+    base = timezone.now().replace(hour=9, minute=0, second=0, microsecond=0)
+    order = 1
+
+    for t in tasks:
+        minutes = t.estimated_minutes or 60
+        start = base
+        end = start + timedelta(minutes=minutes)
+
+        PlanSuggestion.objects.create(
+            task=t,
+            suggested_start=start,
+            suggested_end=end,
+            order=order,
+        )
+
+        base = end + timedelta(minutes=30)
+        order += 1
+
+    return redirect("plan_design")
 
 
 def calendar_view(request):

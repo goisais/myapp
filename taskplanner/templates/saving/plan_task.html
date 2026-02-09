@@ -1,0 +1,44 @@
+{% extends "saving/base.html" %}
+{% load static %}
+
+{% block title %}プラン設計{% endblock %}
+{% block header %}プラン設計{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'saving/plan_task.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="tab-menu">
+    <a href="{% url 'plan_task' %}" class="tab active">タスク追加</a>
+    <a href="{% url 'plan_ai' %}" class="tab">AI相談</a>
+</div>
+
+<div class="schedule-container">
+    <h2>タスク追加</h2>
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group"><label>やりたい事</label>{{ form.title }}</div>
+        <div class="form-group"><label>所要時間（分）</label>{{ form.estimated_minutes }}</div>
+        <div class="form-group"><label>締切</label>{{ form.deadline }}</div>
+        <div class="form-group"><label>優先度</label>{{ form.priority }}</div>
+        <div class="form-group"><label>メモ</label>{{ form.memo }}</div>
+
+        <button type="submit" class="submit-btn">追加</button>
+    </form>
+
+    <h3 style="margin-top:20px;">登録済みタスク</h3>
+    {% for t in tasks %}
+    <div class="schedule-item">
+        <b>{{ t.title }}</b><br>
+        所要時間: {% if t.estimated_minutes %}{{ t.estimated_minutes }}分{% else %}未設定{% endif %} /
+        優先度: {{ t.get_priority_display }}
+    </div>
+    {% empty %}
+    <p>まだタスクがありません。</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

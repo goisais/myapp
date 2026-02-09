@@ -10,7 +10,7 @@ class PlanTaskForm(forms.ModelForm):
         widgets = {
             "title": forms.TextInput(attrs={"class": "input-box"}),
             "estimated_minutes": forms.NumberInput(attrs={"class": "input-box"}),
-            "deadline": forms.DateInput(attrs={"type": "date", "class": "input-box"}),
+            "deadline": forms.DateTimeInput(attrs={"type": "datetime-local", "class": "input-box"}),
             "priority": forms.Select(attrs={"class": "input-box"}),
             "memo": forms.Textarea(attrs={"class": "textarea-box"}),
         }
