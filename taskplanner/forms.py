@@ -164,6 +164,7 @@ class PlanTaskForm(forms.ModelForm):
         model = PlanTask
         fields = [
             "title",
+            "desired_at",
             "deadline",
             "priority",
             "memo",
@@ -173,6 +174,10 @@ class PlanTaskForm(forms.ModelForm):
         ]
         widgets = {
             "title": forms.TextInput(attrs={"class": "input-box"}),
+            "desired_at": forms.DateTimeInput(
+                format="%Y-%m-%dT%H:%M",
+                attrs={"type": "datetime-local", "class": "input-box"},
+            ),
             "deadline": forms.DateTimeInput(
                 format="%Y-%m-%dT%H:%M",
                 attrs={"type": "datetime-local", "class": "input-box"},
@@ -204,6 +209,9 @@ class PlanTaskForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         inst = getattr(self, "instance", None)
+
+        if inst and getattr(inst, "desired_at", None):
+            self.initial["desired_at"] = inst.desired_at.strftime("%Y-%m-%dT%H:%M")
 
         if inst and getattr(inst, "deadline", None):
             self.initial["deadline"] = inst.deadline.strftime("%Y-%m-%dT%H:%M")

@@ -54,6 +54,8 @@ class PlanTask(models.Model):
     ]
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
 
+    desired_at = models.DateTimeField(null=True, blank=True)
+
     deadline = models.DateTimeField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

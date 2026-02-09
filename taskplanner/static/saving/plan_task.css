@@ -72,3 +72,26 @@
   font-size: 14px;
 }
 
+/* 登録済みタスクを開閉できるようにする */
+.task-panel-summary {
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* summary のデフォルト三角を消す（任意） */
+.task-panel-summary::-webkit-details-marker {
+  display: none;
+}
+
+.task-panel-hint {
+  font-size: 12px;
+  color: #888;
+  font-weight: normal;
+  white-space: nowrap;
+}
+

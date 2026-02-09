@@ -5,52 +5,80 @@
 {% block header %}プラン設計{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'saving/plan_task.css' %}">
 <link rel="stylesheet" href="{% static 'saving/plan_ai.css' %}">
 {% endblock %}
 
 {% block content %}
 
 <div class="tab-menu">
-  <a href="{% url 'plan_task' %}" class="tab">タスク追加</a>
-  <a href="{% url 'plan_ai' %}" class="tab active">AI相談</a>
+    <a href="{% url 'plan_task' %}" class="tab">タスク追加</a>
+    <a href="{% url 'plan_ai' %}" class="tab active">AI相談</a>
 </div>
 
 <div class="schedule-container">
     <h2>AI相談</h2>
 
-  <h3>登録済みタスク</h3>
-  {% for t in tasks %}
-    <div class="schedule-item">
-      <b>{{ t.title }}</b><br>
-      所要時間: {% if t.estimated_minutes %}{{ t.estimated_minutes }}分{% else %}未設定{% endif %} /
-      優先度: {{ t.get_priority_display }}
-    </div>
-  {% empty %}
-    <p>まだタスクがありません。</p>
-  {% endfor %}
+    <details class="panel">
+        <summary class="task-panel-summary" style="margin-top:20px;">
+            登録済みタスク（{{ tasks|length }}）
+            <span class="task-panel-hint">タップで開閉</span>
+        </summary>
 
-  <form method="post" action="{% url 'plan_generate' %}">
-    {% csrf_token %}
-    <button class="submit-btn">AIに相談</button>
-  </form>
+        {% for t in tasks %}
+        <div class="schedule-item">
+            <b>{{ t.title }}</b><br>
 
-  <h3 style="margin-top:20px;">AIの提案したプラン</h3>
-  {% for s in suggestions %}
-    <div class="schedule-item">
-      <b>{{ s.order }}</b>
-      {{ s.suggested_start|date:"m/d H:i" }}
-      {{ s.task.title }}
-      （{% if s.task.estimated_minutes %}{{ s.task.estimated_minutes }}分{% else %}未設定{% endif %}）
+            日時:
+            {% if t.desired_at %}{{ t.desired_at|date:"m/d H:i" }}{% else %}未定{% endif %}<br>
+
+            締切:
+            {% if t.deadline %}{{ t.deadline|date:"m/d H:i" }}{% else %}未定{% endif %}<br>
+
+            所要時間:
+            {% if t.estimated_minutes %}{{ t.estimated_minutes }}分{% else %}未定{% endif %}
+            /
+            優先度: {{ t.get_priority_display }}
+        </div>
+        {% empty %}
+        <p>まだタスクがありません。</p>
+        {% endfor %}
+    </details>
+
+    <form method="post" action="{% url 'plan_generate' %}">
+        {% csrf_token %}
+        <button class="submit-btn">AIに相談</button>
+    </form>
+
+    <h3 style="margin-top:20px;">AIの提案したプラン</h3>
+
+    {% for s in suggestions %}
+    <div class="ai-item">
+        <div class="ai-time">
+            {{ s.suggested_start|date:"H:i" }} - {{ s.suggested_end|date:"H:i" }}
+        </div>
+
+        <div class="ai-title">{{ s.task.title }}</div>
+
+        <div class="ai-duration">
+            {% if s.task.estimated_minutes %}{{ s.task.estimated_minutes }}分{% else %}未設定{% endif %}
+        </div>
+
+        <div class="ai-priority priority-{{ s.task.priority }}">
+            {{ s.task.get_priority_display }}
+        </div>
+
+        {% if s.task.memo %}
+        <div class="ai-memo">{{ s.task.memo }}</div>
+        {% endif %}
     </div>
-  {% empty %}
+    {% empty %}
     <p>まだ提案はありません。「AIに相談」を押してください。</p>
-  {% endfor %}
-
-  <form method="post" action="{% url 'plan_apply' %}">
-    {% csrf_token %}
-    <button class="submit-btn">カレンダーに登録</button>
-  </form>
-
+    {% endfor %}
+    <form method="post" action="{% url 'plan_apply' %}">
+        {% csrf_token %}
+        <button class="submit-btn">カレンダーに登録</button>
+    </form>
 </div>
 
 {% endblock %}
