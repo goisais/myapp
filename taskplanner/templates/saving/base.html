@@ -30,31 +30,41 @@
 
   <!-- メイン -->
   <main class="content">
+    {% if messages %}
+    <div style="margin: 10px 0;">
+      {% for message in messages %}
+      <div style="padding:10px;border-radius:10px;margin-bottom:8px;background:#fff3cd;border:1px solid #ffeeba;">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     {% block content %}{% endblock %}
   </main>
 
   <!-- フッター -->
-   <footer class="app-footer">
-  <a href="{% url 'schedule_create' %}" class="nav-item">
-    <span class="material-icons">home</span>
-    <p>ホーム</p>
-  </a>
+  <footer class="app-footer">
+    <a href="{% url 'schedule_create' %}" class="nav-item">
+      <span class="material-icons">home</span>
+      <p>ホーム</p>
+    </a>
 
-  <a href="{% url 'calendar' %}" class="nav-item">
-    <span class="material-icons">calendar_month</span>
-    <p>カレンダー</p>
-  </a>
+    <a href="{% url 'calendar' %}" class="nav-item">
+      <span class="material-icons">calendar_month</span>
+      <p>カレンダー</p>
+    </a>
 
-  <a href="{% url 'plan_task' %}" class="nav-item">
-    <span class="material-icons">auto_awesome</span>
-    <p>プラン設計</p>
-  </a>
+    <a href="{% url 'plan_task' %}" class="nav-item">
+      <span class="material-icons">auto_awesome</span>
+      <p>プラン設計</p>
+    </a>
 
-  <a href="#" class="nav-item">
-    <span class="material-icons">settings</span>
-    <p>設定</p>
-  </a>
-</footer>
+    <a href="#" class="nav-item">
+      <span class="material-icons">settings</span>
+      <p>設定</p>
+    </a>
+  </footer>
 
 </body>
 
