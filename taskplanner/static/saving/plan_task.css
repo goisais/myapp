@@ -95,3 +95,18 @@
   white-space: nowrap;
 }
 
+.task-actions{
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.btn{
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 14px;
+}

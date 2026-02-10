@@ -1,0 +1,56 @@
+{% extends "saving/base.html" %}
+{% load static %}
+
+{% block title %}タスク編集{% endblock %}
+{% block header %}タスク編集{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'saving/plan_task_edit.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="schedule-container">
+  <h2>タスク編集</h2>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label>{{ form.title.label }}</label>
+      {{ form.title }}
+    </div>
+
+    <div class="form-group">
+      <label>{{ form.desired_at.label }}</label>
+      {{ form.desired_at }}
+    </div>
+
+    <div class="form-group">
+      <label>{{ form.deadline.label }}</label>
+      {{ form.deadline }}
+    </div>
+
+    <div class="form-group">
+      <label>{{ form.priority.label }}</label>
+      {{ form.priority }}
+    </div>
+
+    <div class="form-group">
+      <label>所要時間</label>
+      <div class="duration-row">
+        {{ form.duration_hours }}
+        {{ form.duration_minutes }}
+      </div>
+      {{ form.estimated_minutes }}  {# HiddenInput #}
+    </div>
+
+    <div class="form-group">
+      <label>{{ form.memo.label }}</label>
+      {{ form.memo }}
+    </div>
+
+    <button type="submit" class="submit-btn"> 保存</button>
+    <a class="back-link" href="{% url 'plan_ai' %}?open={{ task.id }}">戻る</a>
+  </form>
+</div>
+{% endblock %}

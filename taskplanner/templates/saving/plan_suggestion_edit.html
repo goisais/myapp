@@ -1,0 +1,22 @@
+{% extends "saving/base.html" %}
+{% load static %}
+{% block title %}提案編集{% endblock %}
+{% block header %}提案編集{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'saving/plan_suggestion_edit.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="schedule-container">
+  <h2>提案編集</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit" class="submit-btn">保存</button>
+    <a class="back-link" href="{% url 'plan_ai' %}">戻る</a>
+  </form>
+</div>
+{% endblock %}

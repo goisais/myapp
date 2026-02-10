@@ -37,10 +37,10 @@
         <button type="submit" class="submit-btn">追加</button>
     </form>
 
-    <details class="task-panel">
+    <details class="task-panel" open >
         <summary class="task-panel-summary" style="margin-top:20px;">
             登録済みタスク（{{ tasks|length }}）
-            <span class="task-panel-hint">タップで開閉</span>
+            <span class="task-panel-hint" >タップで開閉</span>
         </summary>
 
         {% for t in tasks %}
@@ -57,6 +57,15 @@
 
             所要時間: {% if t.estimated_minutes %}{{ t.estimated_minutes }}分{% else %}未定{% endif %} /
             優先度: {{ t.get_priority_display }}
+
+            <div class="task-actions" style="margin-top:8px; display:flex; gap:8px;">
+                <a href="{% url 'plan_task_edit' t.id %}" class="btn">編集</a>
+
+                <form method="post" action="{% url 'plan_task_delete' t.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn danger" onclick="return confirm('削除しますか？');">削除</button>
+                </form>
+            </div>
         </div>
         {% empty %}
         <p>まだタスクがありません。</p>

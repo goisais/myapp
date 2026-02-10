@@ -1,7 +1,9 @@
 import itertools
 from django import forms
 from django.forms import HiddenInput
-from .models import Schedule, PlanTask
+from .models import Schedule, PlanTask, PlanSuggestion
+from django.utils import timezone
+
 
 
 # =========================
@@ -172,6 +174,16 @@ class PlanTaskForm(forms.ModelForm):
             "duration_minutes",
             "estimated_minutes",
         ]
+        labels = {
+            "title": "やりたい事",
+            "desired_at": "日時",
+            "deadline": "締切",
+            "priority": "優先度",
+            "memo": "メモ",
+            "duration_hours": "所要時間",
+            "duration_minutes": "所要時間（分）",
+            "estimated_minutes": "合計分（自動）",
+        }
         widgets = {
             "title": forms.TextInput(attrs={"class": "input-box"}),
             "desired_at": forms.DateTimeInput(
@@ -211,11 +223,14 @@ class PlanTaskForm(forms.ModelForm):
         inst = getattr(self, "instance", None)
 
         if inst and getattr(inst, "desired_at", None):
-            self.initial["desired_at"] = inst.desired_at.strftime("%Y-%m-%dT%H:%M")
+            dt = timezone.localtime(inst.desired_at) if timezone.is_aware(inst.desired_at) else inst.desired_at
+            self.initial["desired_at"] = dt.strftime("%Y-%m-%dT%H:%M")
 
         if inst and getattr(inst, "deadline", None):
-            self.initial["deadline"] = inst.deadline.strftime("%Y-%m-%dT%H:%M")
+            dt = timezone.localtime(inst.deadline) if timezone.is_aware(inst.deadline) else inst.deadline
+            self.initial["deadline"] = dt.strftime("%Y-%m-%dT%H:%M")
 
+        # estimated_minutes → hours/minutes復元（ここは今のままでOK）
         if inst and getattr(inst, "estimated_minutes", None):
             total = inst.estimated_minutes
             hh = total // 60
@@ -227,3 +242,38 @@ class PlanTaskForm(forms.ModelForm):
         else:
             self.fields["duration_hours"].initial = "0"
             self.fields["duration_minutes"].initial = ""
+
+
+class PlanSuggestionForm(forms.ModelForm):
+    class Meta:
+        model = PlanSuggestion
+        fields = ["task", "suggested_start", "suggested_end", "order", "memo"]
+        labels = {
+            "task": "対象タスク",
+            "suggested_start": "開始",
+            "suggested_end": "終了",
+            "order": "順番",
+            "memo": "メモ",
+        }
+        widgets = {
+            "task": forms.Select(attrs={"class": "input-box"}),
+            "suggested_start": forms.DateTimeInput(
+                format="%Y-%m-%dT%H:%M",
+                attrs={"type": "datetime-local", "class": "input-box"},
+            ),
+            "suggested_end": forms.DateTimeInput(
+                format="%Y-%m-%dT%H:%M",
+                attrs={"type": "datetime-local", "class": "input-box"},
+            ),
+            "order": forms.NumberInput(attrs={"class": "input-box"}),
+            "memo": forms.Textarea(attrs={"class": "textarea-box", "rows": 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        inst = getattr(self, "instance", None)
+        if inst and getattr(inst, "suggested_start", None):
+            self.initial["suggested_start"] = inst.suggested_start.strftime("%Y-%m-%dT%H:%M")
+        if inst and getattr(inst, "suggested_end", None):
+            self.initial["suggested_end"] = inst.suggested_end.strftime("%Y-%m-%dT%H:%M")

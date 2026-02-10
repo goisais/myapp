@@ -19,14 +19,14 @@
 <div class="schedule-container">
     <h2>AI相談</h2>
 
-    <details class="panel">
+    <details class="panel" {% if open_id %}open{% endif %}>
         <summary class="task-panel-summary" style="margin-top:20px;">
             登録済みタスク（{{ tasks|length }}）
             <span class="task-panel-hint">タップで開閉</span>
         </summary>
 
         {% for t in tasks %}
-        <div class="schedule-item">
+        <div class="schedule-item" id="task-{{ t.id }}">
             <b>{{ t.title }}</b><br>
 
             日時:
@@ -39,6 +39,19 @@
             {% if t.estimated_minutes %}{{ t.estimated_minutes }}分{% else %}未定{% endif %}
             /
             優先度: {{ t.get_priority_display }}
+
+            {% if t.memo %}
+            <div class="task-memo">{{ t.memo }}</div>
+            {% endif %}
+
+            <div class="task-actions">
+                <a class="btn" href="{% url 'plan_task_edit' t.id %}">編集</a>
+
+                <form method="post" action="{% url 'plan_task_delete' t.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button class="btn danger" type="submit" onclick="return confirm('削除しますか？');">削除</button>
+                </form>
+            </div>
         </div>
         {% empty %}
         <p>まだタスクがありません。</p>
@@ -71,6 +84,17 @@
         {% if s.task.memo %}
         <div class="ai-memo">{{ s.task.memo }}</div>
         {% endif %}
+
+        <div class="ai-actions" style="margin-top:8px; display:flex; gap:8px;">
+            <a href="{% url 'plan_suggestion_edit' s.id %}" class="btn">編集</a>
+
+            <form method="post" action="{% url 'plan_suggestion_delete' s.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn danger" onclick="return confirm('この提案を削除しますか？');">
+                    削除
+                </button>
+            </form>
+        </div>
     </div>
     {% empty %}
     <p>まだ提案はありません。「AIに相談」を押してください。</p>

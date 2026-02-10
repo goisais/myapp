@@ -142,6 +142,15 @@
 .priority-2 { background: #888; }
 .priority-3 { background: #bbb; }
 
+.task-memo, .ai-memo {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0.9;
+  white-space: pre-wrap; /* 改行を活かす */
+  word-break: break-word;
+}
+
 @media (max-width: 480px) {
   .ai-item {
     grid-template-columns: 1fr max-content 40px;

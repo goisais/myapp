@@ -70,3 +70,4 @@ class PlanSuggestion(models.Model):
     suggested_end = models.DateTimeField()
     order = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+    memo = models.TextField(blank=True)

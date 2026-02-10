@@ -1,12 +1,60 @@
-from .forms import ScheduleForm, PlanTaskForm
-from django.shortcuts import render, redirect
+from .forms import ScheduleForm, PlanTaskForm, PlanSuggestionForm
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Schedule, PlanTask, PlanSuggestion
 from datetime import date, datetime, timedelta, timezone as dt_timezone
 from django.utils import timezone
 from .ai_service import ai_plan_tasks
 from django.contrib import messages
 from django.utils.dateparse import parse_datetime
+from django.views.decorators.http import require_POST
+from django.urls import reverse
 import calendar
+
+
+def plan_suggestion_edit(request, pk):
+    suggestion = get_object_or_404(PlanSuggestion, pk=pk)
+
+    if request.method == "POST":
+        form = PlanSuggestionForm(request.POST, instance=suggestion)
+        if form.is_valid():
+            form.save()
+            return redirect("plan_ai")
+    else:
+        form = PlanSuggestionForm(instance=suggestion)
+
+    return render(
+        request,
+        "saving/plan_suggestion_edit.html",
+        {"form": form, "suggestion": suggestion},
+    )
+
+
+@require_POST
+def plan_suggestion_delete(request, pk):
+    suggestion = get_object_or_404(PlanSuggestion, pk=pk)
+    suggestion.delete()
+    return redirect("plan_ai")
+
+
+def plan_task_edit(request, pk):
+    task = get_object_or_404(PlanTask, pk=pk)
+
+    if request.method == "POST":
+        form = PlanTaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            return redirect(f"{reverse('plan_ai')}?open={task.id}")
+    else:
+        form = PlanTaskForm(instance=task)
+
+    return render(request, "saving/plan_task_edit.html", {"form": form, "task": task})
+
+
+@require_POST
+def plan_task_delete(request, pk):
+    task = get_object_or_404(PlanTask, pk=pk)
+    task.delete()
+    return redirect(f"{reverse('plan_ai')}?open=1")
 
 
 def plan_task_view(request):
@@ -25,10 +73,17 @@ def plan_task_view(request):
 def plan_ai_view(request):
     tasks = PlanTask.objects.order_by("-created_at")
     suggestions = PlanSuggestion.objects.select_related("task").order_by("order")
+
+    open_id = request.GET.get("open")
+
     return render(
         request,
         "saving/plan_ai.html",
-        {"tasks": tasks, "suggestions": suggestions},
+        {
+            "tasks": tasks,
+            "suggestions": suggestions,
+            "open_id": open_id,
+        },
     )
 
 
