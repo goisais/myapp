@@ -55,7 +55,7 @@
     {% for s in suggestions %}
     <div class="ai-item">
         <div class="ai-time">
-            {{ s.suggested_start|date:"H:i" }} - {{ s.suggested_end|date:"H:i" }}
+            {{ s.suggested_start|date:"m/d H:i" }} - {{ s.suggested_end|date:"H:i" }}
         </div>
 
         <div class="ai-title">{{ s.task.title }}</div>

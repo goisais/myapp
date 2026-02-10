@@ -5,7 +5,7 @@ from datetime import date, datetime, timedelta, timezone as dt_timezone
 from django.utils import timezone
 from .ai_service import ai_plan_tasks
 from django.contrib import messages
-import json
+from django.utils.dateparse import parse_datetime
 import calendar
 
 
@@ -60,43 +60,88 @@ def plan_generate(request):
     PlanSuggestion.objects.all().delete()
 
     tasks = PlanTask.objects.all()
+    if not tasks.exists():
+        messages.info(request, "タスクが無いのでプランを作れませんでした。")
+        return redirect("plan_ai")
 
     payload = [
         {
             "id": t.id,
             "title": t.title,
             "memo": t.memo,
+
             "priority": t.priority,
+            "priority_locked": True,  
+
             "deadline": t.deadline.isoformat() if t.deadline else None,
+
+            "desired_at": t.desired_at.isoformat() if t.desired_at else None,
+            "desired_at_locked": bool(t.desired_at), 
+
             "estimated_minutes": t.estimated_minutes,
+            "estimated_minutes_locked": bool(t.estimated_minutes), 
         }
         for t in tasks
     ]
 
-    result = None
+    # ===== AIに渡す「既存予定」「期間」「作業可能時間」 =====
+    jst = timezone.get_current_timezone()
+    window_start_dt = timezone.now().astimezone(jst).replace(hour=9, minute=0, second=0, microsecond=0)
+    window_end_dt = window_start_dt + timedelta(days=14)
 
-    # ===== Gemini呼び出し（失敗したら疑似AIへ）=====
+    schedules = Schedule.objects.filter(date__gte=window_start_dt, date__lt=window_end_dt).order_by("date")
+
+    existing_events = []
+    for s in schedules:
+        start_dt = s.date.astimezone(jst)
+
+        if s.end_time:
+            end_dt = timezone.make_aware(datetime.combine(start_dt.date(), s.end_time), jst)
+            if end_dt <= start_dt:
+                end_dt += timedelta(days=1)
+        else:
+            try:
+                m = int(s.duration) if s.duration else 60
+            except ValueError:
+                m = 60
+            end_dt = start_dt + timedelta(minutes=m)
+
+        existing_events.append(
+            {"title": s.title, "start": start_dt.isoformat(), "end": end_dt.isoformat()}
+        )
+
+    availability = {
+        "timezone": "Asia/Tokyo",
+        "weekday": [{"start": "18:00", "end": "23:00"}],
+        "weekend": [{"start": "10:00", "end": "22:00"}],
+        "slot_minutes": 15,
+    }
+
+    window_start = window_start_dt.isoformat()
+    window_end = window_end_dt.isoformat()
+    # ===== ここまで =====
+
+    result = None
+    used_fallback = False
+
+    # ===== Gemini呼び出し =====
     try:
-        result = ai_plan_tasks(payload)
+        result = ai_plan_tasks(payload, existing_events, availability, window_start, window_end)
         if not isinstance(result, list):
             raise ValueError(f"AI結果がlistではありません: {type(result)}")
     except Exception as e:
-        # ここでだけ e / msg を使う（外に出さない）
+        used_fallback = True
         msg = str(e)
 
+        # メッセージはここで出す（成功時には出さない）
         if ("503" in msg) or ("UNAVAILABLE" in msg) or ("high demand" in msg):
-            messages.error(
-                request,
-                "AIが混雑しています（503）。仮のルールでプランを作りました。"
-            )
+            messages.error(request, "AIが混雑しています（503）。仮のルールでプランを作りました。")
         else:
-            messages.error(
-                request,
-                f"AIエラーが発生しました。仮のルールでプランを作りました。（詳細: {msg}）"
-            )
+            messages.error(request, f"AIエラーが発生しました。仮のルールでプランを作りました。（詳細: {msg}）")
 
     # ===== フォールバック（疑似AI）=====
     if result is None:
+        used_fallback = True
         tasks_sorted = sorted(
             tasks,
             key=lambda t: (
@@ -105,53 +150,98 @@ def plan_generate(request):
                 t.estimated_minutes or 9999,
             ),
         )
-
         result = []
         order = 1
         for t in tasks_sorted:
-            result.append(
-                {
-                    "id": t.id,
-                    "estimated_minutes": t.estimated_minutes or 60,
-                    "order": order,
-                }
-            )
+            result.append({"id": t.id, "estimated_minutes": t.estimated_minutes or 60, "order": order})
             order += 1
 
-    # ===== PlanSuggestion 作成（result を信頼しすぎない）=====
-    base = timezone.now().replace(hour=9, minute=0, second=0, microsecond=0)
+    # ===== PlanSuggestion 作成 =====
+    base = window_start_dt
+    created_count = 0  # ★実際に作れた件数
+    skipped_count = 0  # ★スキップした件数（デバッグに便利）
 
     for r in sorted(result, key=lambda x: int(x.get("order", 999999))):
         task_id = r.get("id")
         if task_id is None:
+            skipped_count += 1
             continue
 
         task = PlanTask.objects.filter(id=task_id).first()
         if not task:
+            skipped_count += 1
             continue
 
-        est = r.get("estimated_minutes")
+        # ---- AIが返した日時を使う（あれば） ----
+        start_at = r.get("start_at")
+        end_at = r.get("end_at")
+
+        start = end = None
+        minutes = None
+
+        if start_at and end_at:
+            sdt = parse_datetime(start_at)
+            edt = parse_datetime(end_at)
+
+            if sdt and timezone.is_naive(sdt):
+                sdt = timezone.make_aware(sdt, timezone.get_current_timezone())
+            if edt and timezone.is_naive(edt):
+                edt = timezone.make_aware(edt, timezone.get_current_timezone())
+
+            if sdt and edt and edt > sdt:
+                start, end = sdt, edt
+                minutes = int((end - start).total_seconds() // 60)
+
+        # ---- AI日時が無い/壊れている場合：仮詰め ----
+        if not (start and end):
+            est = r.get("estimated_minutes")
+            try:
+                minutes = int(est) if est is not None else (task.estimated_minutes or 60)
+            except (TypeError, ValueError):
+                minutes = task.estimated_minutes or 60
+
+            if minutes <= 0:
+                minutes = 60
+
+            start = base
+            end = start + timedelta(minutes=minutes)
+            base = end + timedelta(minutes=30)
+
+        # 所要時間をタスクに保存（未設定のときだけ）
+        if task.estimated_minutes is None and minutes is not None:
+            task.estimated_minutes = minutes
+            task.save(update_fields=["estimated_minutes"])
+
+        # 優先度をAIが返してきたら反映（1〜3のみ）
+        p = r.get("priority")
+        if p in (1, 2, 3) and task.priority != p:
+            task.priority = p
+            task.save(update_fields=["priority"])
+
+        # order を安全に決める（AIがorder返さない場合に備える）
         try:
-            minutes = int(est) if est is not None else (task.estimated_minutes or 60)
+            order_val = int(r.get("order", 999999))
         except (TypeError, ValueError):
-            minutes = task.estimated_minutes or 60
-
-        if minutes <= 0:
-            minutes = 60
-
-        start = base
-        end = start + timedelta(minutes=minutes)
+            order_val = 999999
 
         PlanSuggestion.objects.create(
             task=task,
             suggested_start=start,
             suggested_end=end,
-            order=int(r.get("order", 999999)),
+            order=order_val,
         )
+        created_count += 1
 
-        base = end + timedelta(minutes=30)
-        
-    messages.success(request, f"AIプランを {len(result)} 件生成しました。")
+    # ===== メッセージ：ここが一番重要 =====
+    if created_count == 0:
+        # resultはあるのに保存できてないパターンを確実に拾う
+        messages.error(request, "プランを作れませんでした（AI出力が不正か、タスクIDが一致していません）。")
+    else:
+        if used_fallback:
+            messages.info(request, f"仮ルールでプランを {created_count} 件生成しました。")
+        else:
+            messages.success(request, f"AIプランを {created_count} 件生成しました。")
+
     return redirect("plan_ai")
 
 
