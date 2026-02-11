@@ -24,7 +24,10 @@
       <div class="header">
         {% block header %}ホーム{% endblock %}
       </div>
-      <a href="{% url 'schedule_create' %}">予定を追加</a>
+      <div class="header-links">
+        <a href="{% url 'schedule_create' %}">予定を追加</a>
+        <a href="{% url 'plan_task' %}">プランを設計</a>
+      </div>
     </div>
   </header>
 

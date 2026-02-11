@@ -1,5 +1,3 @@
-/* ===== plan_ai.css（plan_task.css と同じ見た目） ===== */
-
 .schedule-container {
   max-width: 400px;
   margin: 0 auto;
@@ -150,6 +148,22 @@
   white-space: pre-wrap; /* 改行を活かす */
   word-break: break-word;
 }
+
+.list-item{
+  grid-template-areas:
+    "time title duration priority"
+    "memo memo memo memo"
+    "actions actions actions actions";
+}
+
+.list-item .ai-actions{
+  grid-area: actions;
+  margin-top: 8px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 
 @media (max-width: 480px) {
   .ai-item {

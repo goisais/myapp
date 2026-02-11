@@ -6,7 +6,7 @@ from . import views
 urlpatterns = [
     path("base/", views.base, name="base"),
     path("", views.schedule_create, name="schedule_create"),
-    path("schedule/priority/", views.schedule_priority_list, name="schedule_priority"),
+    path("list/", views.schedule_list_view, name="schedule_list"),
     path("calendar/", views.calendar_view, name="calendar"),
     path("plan/generate/", views.plan_generate, name="plan_generate"),
     path("plan/apply/", views.plan_apply, name="plan_apply"),
@@ -16,4 +16,5 @@ urlpatterns = [
     path("plan/task/<int:pk>/delete/", views.plan_task_delete, name="plan_task_delete"),
     path("plan/suggestion/<int:pk>/edit/", views.plan_suggestion_edit, name="plan_suggestion_edit"),
     path("plan/suggestion/<int:pk>/delete/", views.plan_suggestion_delete, name="plan_suggestion_delete"),
+    path("schedule/<int:pk>/edit/", views.schedule_edit, name="schedule_edit"),
 ]

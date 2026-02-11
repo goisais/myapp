@@ -1,0 +1,91 @@
+{% extends "saving/base.html" %}
+{% load static %}
+
+{% block title %}リスト一覧{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'saving/plan_task.css' %}">
+<link rel="stylesheet" href="{% static 'saving/plan_ai.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="tab-menu">
+  <a href="{% url 'schedule_create' %}" class="tab">予定入力</a>
+  <a href="{% url 'schedule_list' %}" class="tab active">スケジュール一覧</a>
+</div>
+
+<div class="schedule-container">
+  <h2>スケジュール一覧</h2>
+
+  <form method="get">
+    <div class="form-group">
+      <label>予定名</label>
+      <input class="input-box" type="text" name="q" value="{{ q }}">
+    </div>
+
+    <div class="form-group">
+      <label>日付(から)</label>
+      <input class="input-box" type="date" name="from" value="{{ date_from }}">
+    </div>
+
+    <div class="form-group">
+      <label>日付(まで)</label>
+      <input class="input-box" type="date" name="to" value="{{ date_to }}">
+    </div>
+
+    <div class="form-group">
+      <label>優先度</label>
+      <select class="input-box" name="priority">
+        <option value="">指定なし</option>
+        <option value="1" {% if priority == "1" %}selected{% endif %}>高</option>
+        <option value="2" {% if priority == "2" %}selected{% endif %}>中</option>
+        <option value="3" {% if priority == "3" %}selected{% endif %}>低</option>
+      </select>
+    </div>
+
+    <button type="submit" class="submit-btn">検索</button>
+  </form>
+
+  {% if schedules %}
+  {% for s in schedules %}
+    <div class="ai-item list-item">
+
+      <div class="ai-time">
+        {{ s.date|date:"m/d H:i" }}
+        {% if s.end_time %} - {{ s.end_time|time:"H:i" }}{% endif %}
+      </div>
+
+      <div class="ai-title">{{ s.title }}</div>
+
+      <div class="ai-duration">
+        {% if s.duration %}{{ s.get_duration_display }}{% endif %}
+      </div>
+
+      <div class="ai-priority priority-{{ s.priority }}">
+        {{ s.get_priority_display }}
+      </div>
+
+      {% if s.memo %}
+        <div class="ai-memo">{{ s.memo }}</div>
+      {% endif %}
+
+      <!-- actions を memo 行に乗せる（gridに合わせる） -->
+      <div class="ai-actions">
+        <a class="btn" href="{% url 'schedule_edit' s.id %}">編集</a>
+
+          {% csrf_token %}
+          <button type="submit" class="btn danger" onclick="return confirm('削除しますか？');">削除</button>
+        </form>
+      </div>
+
+    </div>
+  {% empty %}
+    <p>予定がありません</p>
+  {% endfor %}
+  {% else %}
+  <p>予定がありません</p>
+  {% endif %}
+</div>
+
+{% endblock %}

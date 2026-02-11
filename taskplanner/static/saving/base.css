@@ -44,6 +44,18 @@ body {
   font-size: 14px;
 }
 
+.header-links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;   /* ← 中央揃え */
+}
+
+.header-links a {
+  font-size: 14px;
+}
+
+
 /* ========== メイン ========== */
 .content {
   padding: 80px 16px 90px; /* header 70 + 余白 / footer 70 + 余白 */

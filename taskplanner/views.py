@@ -11,6 +11,57 @@ from django.urls import reverse
 import calendar
 
 
+def schedule_edit(request, pk):
+    schedule = get_object_or_404(Schedule, pk=pk)
+
+    if request.method == "POST":
+        form = ScheduleForm(request.POST, instance=schedule)
+        if form.is_valid():
+            form.save()
+            return redirect("schedule_list")
+    else:
+        form = ScheduleForm(instance=schedule)
+
+    return render(request, "saving/schedule_edit.html", {"form": form, "schedule": schedule})
+
+
+def schedule_list_view(request):
+    qs = Schedule.objects.all().order_by("-date")
+
+    # --- GETパラメータ取得 ---
+    q = request.GET.get("q", "").strip()               # タイトル検索
+    priority = request.GET.get("priority", "").strip() # 優先度
+    date_from = request.GET.get("from", "").strip()    # 開始日
+    date_to = request.GET.get("to", "").strip()        # 終了日
+
+    # --- 絞り込み ---
+    if q:
+        qs = qs.filter(title__icontains=q)
+
+    if priority:
+        # priorityはIntegerField想定（"1","2","3"が来る）
+        try:
+            qs = qs.filter(priority=int(priority))
+        except ValueError:
+            pass
+
+    if date_from:
+        # "YYYY-MM-DD" を DateTimeField に当てるなら __date が簡単
+        qs = qs.filter(date__date__gte=date_from)
+
+    if date_to:
+        qs = qs.filter(date__date__lte=date_to)
+
+    context = {
+        "schedules": qs,
+        "q": q,
+        "priority": priority,
+        "date_from": date_from,
+        "date_to": date_to,
+    }
+    return render(request, "saving/schedule_list.html", context)
+
+
 def plan_suggestion_edit(request, pk):
     suggestion = get_object_or_404(PlanSuggestion, pk=pk)
 
@@ -367,11 +418,6 @@ def calendar_view(request):
         "next_month": next_month,
     }
     return render(request, "saving/calendar.html", context)
-
-
-def schedule_priority_list(request):
-    schedules = Schedule.objects.order_by("priority", "date")
-    return render(request, "saving/schedule_priority.html", {"schedules": schedules})
 
 
 def schedule_create(request):
