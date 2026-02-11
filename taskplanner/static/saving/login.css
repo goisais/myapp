@@ -1,0 +1,118 @@
+body {
+    margin: 0;
+    background: #f3f3f3;
+    font-family: sans-serif;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;   /* 画面固定 */
+}
+
+.container {
+    width: 92%;
+    max-width: 360px;
+    background: #ffffff;
+    padding: 26px;
+    border-radius: 24px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+hr {
+    margin: 18px 0;
+    border: none;
+    border-top: 1px solid #ddd;
+}
+
+label {
+    display: block;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 16px; /* iPhone拡大防止 */
+    background: #f2f2f2;
+}
+
+.password-box {
+    position: relative;
+}
+
+.eye {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.btn {
+    width: 100%;
+    margin-top: 26px;
+    padding: 16px;
+    border-radius: 16px;
+    border: none;
+    background: #cfcfcf;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.forgot {
+    text-align: center;
+    margin-top: 14px;
+    text-decoration: underline;
+    font-size: 14px;
+}
+
+.signup-text {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.signup-btn {
+    display: block;
+    text-align: center;
+    background: #e5e5e5;
+    padding: 12px;
+    border-radius: 16px;
+    text-decoration: none;
+    color: black;
+    margin-top: 10px;
+}
+
+/* メッセージ */
+.message {
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+/* エラー */
+.message.error {
+    background-color: #ffe5e5;
+    color: #d8000c;
+    border: 1px solid #d8000c;
+}
+
+/* 成功 */
+.message.success {
+    background-color: #e6ffed;
+    color: #1a7f37;
+    border: 1px solid #1a7f37;
+}

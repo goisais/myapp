@@ -3,7 +3,38 @@ from django import forms
 from django.forms import HiddenInput
 from .models import Schedule, PlanTask, PlanSuggestion
 from django.utils import timezone
+from django.contrib.auth.models import User
 
+
+class UsernameChangeForm(forms.Form):
+    username = forms.CharField(
+        label="ユーザー名",
+        max_length=150,
+        widget=forms.TextInput(attrs={"class": "input-box", "placeholder": "新しいユーザー名"}),
+    )
+
+    def clean_username(self):
+        username = (self.cleaned_data.get("username") or "").strip()
+        if not username:
+            raise forms.ValidationError("ユーザー名を入力してください。")
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("そのユーザー名は既に使われています。")
+        return username
+
+
+class EmailChangeForm(forms.Form):
+    email = forms.EmailField(
+        label="メールアドレス",
+        widget=forms.EmailInput(attrs={"class": "input-box", "placeholder": "new@example.com"}),
+    )
+
+    def clean_email(self):
+        email = (self.cleaned_data.get("email") or "").strip()
+        if not email:
+            raise forms.ValidationError("メールアドレスを入力してください。")
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("そのメールアドレスは既に使われています。")
+        return email
 
 
 # =========================

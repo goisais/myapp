@@ -1,0 +1,106 @@
+body {
+    margin: 0;
+    background-color: #f2f2f2;
+    font-family: sans-serif;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.container {
+    width: 92%;
+    max-width: 360px;
+    background: #ffffff;
+    padding: 26px;
+    border-radius: 24px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+hr {
+    margin-bottom: 25px;
+}
+
+label {
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+
+.password-box {
+    position: relative;
+}
+
+.eye {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.btn {
+    width: 100%;
+    margin-top: 28px;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    background: #bdbdbd;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 25px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.message {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+/* エラーは赤 */
+.message.error {
+    background-color: #ffe5e5;
+    color: #d8000c;
+    border: 1px solid #d8000c;
+}
+
+/* 成功は緑 */
+.message.success {
+    background-color: #e6ffed;
+    color: #1a7f37;
+    border: 1px solid #1a7f37;
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 24px;
+    }
+
+    .container {
+        padding: 22px;
+    }
+}

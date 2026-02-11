@@ -1,7 +1,9 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Schedule(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     memo = models.TextField(blank=True)
     date = models.DateTimeField()
@@ -42,6 +44,7 @@ class Schedule(models.Model):
 
 
 class PlanTask(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     memo = models.TextField(blank=True)
 
@@ -65,6 +68,7 @@ class PlanTask(models.Model):
 
 
 class PlanSuggestion(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     task = models.ForeignKey("PlanTask", on_delete=models.CASCADE)
     suggested_start = models.DateTimeField()
     suggested_end = models.DateTimeField()

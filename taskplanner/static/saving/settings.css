@@ -1,0 +1,86 @@
+/* schedule_form.css を土台に、設定ページの配置だけ整える */
+
+.settings-container {
+  padding-top: 6px;
+}
+
+.settings-title {
+  font-size: 28px;
+  margin-bottom: 18px;
+}
+
+/* 入力 + 右アイコンの行 */
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* input-box を横に伸ばす */
+.field-row .input-box {
+  flex: 1;
+  background: #fff; /* 画像っぽく白 */
+}
+
+/* 右のペンボタン */
+.icon-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  color: #333;
+}
+
+.icon-btn .material-icons {
+  font-size: 22px;
+}
+
+/* 下のメニュー */
+.settings-menu {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 14px 14px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  background: #fff;
+
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
+
+.menu-item .material-icons {
+  font-size: 22px;
+}
+
+.menu-text {
+  flex: 1;
+  font-size: 14px;
+}
+
+.chevron {
+  color: #888;
+}
+
+.menu-item.danger {
+  background: #fff5f5;
+  border-color: #ffd8d8;
+  color: #b00020;
+}
+
+.menu-item.danger .chevron {
+  color: #b00020;
+}

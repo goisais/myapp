@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン</title>
+    <link rel="stylesheet" href="{% static 'saving/login.css' %}">
+</head>
+
+<body>
+    <div class="container">
+        <h1>ログイン</h1>
+        {% if messages %}
+        {% for message in messages %}
+        <p class="message {{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+        <hr>
+        <form method="post"> {% csrf_token %} <label>ユーザー名 または メールアドレス</label> <input type="text" name="login_id"
+                placeholder="ユーザー名 または メールアドレスを入力"> <label>パスワード</label>
+            <div class="password-box"> <input type="password" id="password" name="password" placeholder="パスワードを入力">
+                <span class="eye" onclick="togglePassword()">👁</span>
+            </div>
+
+            <button type="submit" class="btn">ログイン</button>
+        </form>
+        <hr>
+        <p class="signup-text">アカウントをお持ちでない方</p> <a href="{% url 'signup' %}" class="signup-btn">新規登録はこちら ›</a>
+    </div>
+    <script> function togglePassword() { const pass = document.getElementById("password"); if (pass.type === "password") { pass.type = "text"; } else { pass.type = "password"; } } </script>
+</body>
+
+</html>

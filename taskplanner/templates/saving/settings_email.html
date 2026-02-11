@@ -1,0 +1,32 @@
+{% extends "saving/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'saving/schedule_form.css' %}">
+{% endblock %}
+
+{% block title %}メール変更{% endblock %}
+{% block header %}メール変更{% endblock %}
+
+{% block content %}
+<div class="schedule-container">
+  <h2>メール変更</h2>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label>新しいメールアドレス</label>
+      {{ form.email }}
+      {% if form.email.errors %}
+        <div style="margin-top:6px;color:#d8000c;font-size:13px;">
+          {{ form.email.errors }}
+        </div>
+      {% endif %}
+    </div>
+
+    <button type="submit" class="submit-btn">保存</button>
+    <a href="{% url 'settings' %}" class="tab" style="display:block;margin-top:10px;">戻る</a>
+  </form>
+</div>
+{% endblock %}

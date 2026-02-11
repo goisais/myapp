@@ -1,4 +1,4 @@
-from .forms import ScheduleForm, PlanTaskForm, PlanSuggestionForm
+from .forms import ScheduleForm, PlanTaskForm, PlanSuggestionForm, UsernameChangeForm, EmailChangeForm
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Schedule, PlanTask, PlanSuggestion
 from datetime import date, datetime, timedelta, timezone as dt_timezone
@@ -8,11 +8,121 @@ from django.contrib import messages
 from django.utils.dateparse import parse_datetime
 from django.views.decorators.http import require_POST
 from django.urls import reverse
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 import calendar
 
 
+@login_required
+def settings_username_view(request):
+    if request.method == "POST":
+        form = UsernameChangeForm(request.POST)
+        if form.is_valid():
+            request.user.username = form.cleaned_data["username"]
+            request.user.save(update_fields=["username"])
+            messages.success(request, "ユーザー名を変更しました。")
+            return redirect("settings")
+    else:
+        form = UsernameChangeForm(initial={"username": request.user.username})
+
+    return render(request, "saving/settings_username.html", {"form": form})
+
+
+@login_required
+def settings_email_view(request):
+    if request.method == "POST":
+        form = EmailChangeForm(request.POST)
+        if form.is_valid():
+            request.user.email = form.cleaned_data["email"]
+            request.user.save(update_fields=["email"])
+            messages.success(request, "メールアドレスを変更しました。")
+            return redirect("settings")
+    else:
+        form = EmailChangeForm(initial={"email": request.user.email})
+
+    return render(request, "saving/settings_email.html", {"form": form})
+
+
+class PasswordChangeFormStyled(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for f in self.fields.values():
+            f.widget.attrs.update({"class": "input-box"})
+
+
+@login_required
+def settings_view(request):
+    return render(request, "saving/settings.html")
+
+
+def signup_view(request):
+    if request.method == "POST":
+        username = (request.POST.get("username") or "").strip()
+        email = (request.POST.get("email") or "").strip()
+        password = request.POST.get("password") or ""
+
+        if not username or not email or not password:
+            messages.error(request, "全て入力してください")
+            return redirect("signup")
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "そのユーザー名は既に使われています")
+            return redirect("signup")
+
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "そのメールアドレスは既に使われています")
+            return redirect("signup")
+
+        User.objects.create_user(username=username, email=email, password=password)
+        messages.success(request, "登録しました。ログインしてください。")
+        return redirect("login")
+
+    return render(request, "saving/signup.html")
+
+
+def login_view(request):
+    if request.method == "POST":
+        login_id = (request.POST.get("login_id") or "").strip()
+        password = request.POST.get("password") or ""
+
+        if not login_id or not password:
+            messages.error(request, "IDとパスワードを入力してください")
+            return redirect("login")
+
+        # メールアドレスで来た場合はusernameに変換して認証
+        username = login_id
+        if "@" in login_id:
+            user_obj = User.objects.filter(email=login_id).first()
+            if not user_obj:
+                messages.error(request, "ユーザー名/メールアドレス または パスワードが違います")
+                return redirect("login")
+            username = user_obj.username
+
+        user = authenticate(request, username=username, password=password)
+        if user is None:
+            messages.error(request, "ユーザー名/メールアドレス または パスワードが違います")
+            return redirect("login")
+
+        login(request, user)
+        return redirect("calendar")  # ログイン後：カレンダーへ
+
+    return render(request, "saving/login.html")
+
+
+def logout_view(request):
+    logout(request)
+    return redirect("login")
+
+
+@login_required
 def schedule_edit(request, pk):
-    schedule = get_object_or_404(Schedule, pk=pk)
+    schedule = get_object_or_404(
+        Schedule,
+        pk=pk,
+        user=request.user
+    )
 
     if request.method == "POST":
         form = ScheduleForm(request.POST, instance=schedule)
@@ -25,8 +135,9 @@ def schedule_edit(request, pk):
     return render(request, "saving/schedule_edit.html", {"form": form, "schedule": schedule})
 
 
+@login_required
 def schedule_list_view(request):
-    qs = Schedule.objects.all().order_by("-date")
+    qs = Schedule.objects.filter(user=request.user).order_by("-date")
 
     # --- GETパラメータ取得 ---
     q = request.GET.get("q", "").strip()               # タイトル検索
@@ -62,8 +173,9 @@ def schedule_list_view(request):
     return render(request, "saving/schedule_list.html", context)
 
 
+@login_required
 def plan_suggestion_edit(request, pk):
-    suggestion = get_object_or_404(PlanSuggestion, pk=pk)
+    suggestion = get_object_or_404(PlanSuggestion, pk=pk, user=request.user)
 
     if request.method == "POST":
         form = PlanSuggestionForm(request.POST, instance=suggestion)
@@ -80,15 +192,17 @@ def plan_suggestion_edit(request, pk):
     )
 
 
+@login_required
 @require_POST
 def plan_suggestion_delete(request, pk):
-    suggestion = get_object_or_404(PlanSuggestion, pk=pk)
+    suggestion = get_object_or_404(PlanSuggestion, pk=pk, user=request.user)
     suggestion.delete()
     return redirect("plan_ai")
 
 
+@login_required
 def plan_task_edit(request, pk):
-    task = get_object_or_404(PlanTask, pk=pk)
+    task = get_object_or_404(PlanTask, pk=pk, user=request.user)
 
     if request.method == "POST":
         form = PlanTaskForm(request.POST, instance=task)
@@ -101,29 +215,34 @@ def plan_task_edit(request, pk):
     return render(request, "saving/plan_task_edit.html", {"form": form, "task": task})
 
 
+@login_required
 @require_POST
 def plan_task_delete(request, pk):
-    task = get_object_or_404(PlanTask, pk=pk)
+    task = get_object_or_404(PlanTask, pk=pk, user=request.user)
     task.delete()
     return redirect(f"{reverse('plan_ai')}?open=1")
 
 
+@login_required
 def plan_task_view(request):
     if request.method == "POST":
         form = PlanTaskForm(request.POST)
         if form.is_valid():
-            form.save()
+            obj = form.save(commit=False)
+            obj.user = request.user
+            obj.save()
             return redirect("plan_task")
     else:
         form = PlanTaskForm()
 
-    tasks = PlanTask.objects.order_by("-created_at")
+    tasks = PlanTask.objects.filter(user=request.user).order_by("-created_at")
     return render(request, "saving/plan_task.html", {"form": form, "tasks": tasks})
 
 
+@login_required
 def plan_ai_view(request):
-    tasks = PlanTask.objects.order_by("-created_at")
-    suggestions = PlanSuggestion.objects.select_related("task").order_by("order")
+    tasks = PlanTask.objects.filter(user=request.user).order_by("-created_at")
+    suggestions = PlanSuggestion.objects.filter(user=request.user).order_by("order")
 
     open_id = request.GET.get("open")
 
@@ -138,14 +257,16 @@ def plan_ai_view(request):
     )
 
 
+@login_required
 def plan_apply(request):
     if request.method != "POST":
         return redirect("plan_task")
 
-    suggestions = PlanSuggestion.objects.select_related("task")
+    suggestions = PlanSuggestion.objects.filter(user=request.user).select_related("task")
 
     for s in suggestions:
         Schedule.objects.create(
+            user=request.user,
             title=s.task.title,
             memo=s.task.memo,
             date=s.suggested_start,
@@ -158,14 +279,16 @@ def plan_apply(request):
     return redirect("calendar")
 
 
+@login_required
+@require_POST
 def plan_generate(request):
     if request.method != "POST":
         return redirect("plan_ai")
 
     # 既存の提案を削除
-    PlanSuggestion.objects.all().delete()
+    PlanSuggestion.objects.filter(user=request.user).delete()
 
-    tasks = PlanTask.objects.all()
+    tasks = PlanTask.objects.filter(user=request.user)
     if not tasks.exists():
         messages.info(request, "タスクが無いのでプランを作れませんでした。")
         return redirect("plan_ai")
@@ -195,7 +318,11 @@ def plan_generate(request):
     window_start_dt = timezone.now().astimezone(jst).replace(hour=9, minute=0, second=0, microsecond=0)
     window_end_dt = window_start_dt + timedelta(days=14)
 
-    schedules = Schedule.objects.filter(date__gte=window_start_dt, date__lt=window_end_dt).order_by("date")
+    schedules = Schedule.objects.filter(
+        user=request.user,
+        date__gte=window_start_dt,
+        date__lt=window_end_dt
+    ).order_by("date")
 
     existing_events = []
     for s in schedules:
@@ -273,7 +400,7 @@ def plan_generate(request):
             skipped_count += 1
             continue
 
-        task = PlanTask.objects.filter(id=task_id).first()
+        task = PlanTask.objects.filter(id=task_id, user=request.user).first()
         if not task:
             skipped_count += 1
             continue
@@ -331,6 +458,7 @@ def plan_generate(request):
             order_val = 999999
 
         PlanSuggestion.objects.create(
+            user=request.user,
             task=task,
             suggested_start=start,
             suggested_end=end,
@@ -351,6 +479,7 @@ def plan_generate(request):
     return redirect("plan_ai")
 
 
+@login_required
 def calendar_view(request):
     today = date.today()
 
@@ -403,7 +532,11 @@ def calendar_view(request):
     start = timezone.make_aware(datetime(year, month, selected_day, 0, 0, 0), jst)
     end = start + timedelta(days=1)
 
-    schedules = Schedule.objects.filter(date__gte=start, date__lt=end).order_by("date")
+    schedules = Schedule.objects.filter(
+        user=request.user,
+        date__gte=start,
+        date__lt=end
+    ).order_by("date")
 
     context = {
         "year": year,
@@ -420,11 +553,13 @@ def calendar_view(request):
     return render(request, "saving/calendar.html", context)
 
 
+@login_required
 def schedule_create(request):
     if request.method == "POST":
         form = ScheduleForm(request.POST)
         if form.is_valid():
             schedule = form.save(commit=False)
+            schedule.user = request.user
 
             minutes = int(form.cleaned_data.get("duration") or 0)
 
@@ -444,5 +579,6 @@ def schedule_create(request):
     return render(request, "saving/schedule_form.html", {"form": form})
 
 
+@login_required
 def base(request):
     return render(request, "saving/base.html")
