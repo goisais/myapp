@@ -55,15 +55,16 @@
             {{ t.deadline|date:"m/d H:i" }}
             {% else %}未定{% endif %}<br>
 
-            所要時間: {% if t.estimated_minutes %}{{ t.estimated_minutes }}分{% else %}未定{% endif %} /
+            所要時間: {{ t.get_estimated_display }} /
             優先度: {{ t.get_priority_display }}
 
             <div class="task-actions" style="margin-top:8px; display:flex; gap:8px;">
                 <a href="{% url 'plan_task_edit' t.id %}" class="btn">編集</a>
 
                 <form method="post" action="{% url 'plan_task_delete' t.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn danger" onclick="return confirm('削除しますか？');">削除</button>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" class="btn danger" onclick="return confirm('削除しますか？');">削除</button>
                 </form>
             </div>
         </div>

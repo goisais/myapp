@@ -65,6 +65,18 @@ class PlanTask(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def get_estimated_display(self):
+        if self.estimated_minutes is None:
+            return "未定"
+
+        total = int(self.estimated_minutes)
+        h = total // 60
+        m = total % 60
+
+        if h > 0:
+            return f"{h}時間{m}分"
+        return f"{m}分"
 
 
 class PlanSuggestion(models.Model):

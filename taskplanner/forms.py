@@ -69,7 +69,6 @@ def duration_minute_choices_with_undecided():
 # =========================
 def duration_minute_choices_no_undecided():
     return [
-        ("0", "0分"),
         ("1", "1分"),
         ("2", "2分"),
         ("3", "3分"),
@@ -188,7 +187,7 @@ class PlanTaskForm(forms.ModelForm):
         required=False,
         label="分",
         widget=forms.Select(attrs={"class": "input-box"}),
-        initial="",
+        initial="0",
     )
 
     estimated_minutes = forms.IntegerField(required=False, widget=HiddenInput())
@@ -245,7 +244,7 @@ class PlanTaskForm(forms.ModelForm):
             cleaned["estimated_minutes"] = None
             return cleaned
 
-        cleaned["estimated_minutes"] = total if total > 0 else None
+        cleaned["estimated_minutes"] = total
         return cleaned
 
     def __init__(self, *args, **kwargs):
@@ -272,7 +271,7 @@ class PlanTaskForm(forms.ModelForm):
             self.fields["duration_minutes"].initial = str(mm) if str(mm) in allowed else ""
         else:
             self.fields["duration_hours"].initial = "0"
-            self.fields["duration_minutes"].initial = ""
+            self.fields["duration_minutes"].initial = "0"
 
 
 class PlanSuggestionForm(forms.ModelForm):

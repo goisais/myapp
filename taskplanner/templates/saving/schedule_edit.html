@@ -34,11 +34,8 @@
 
     <div class="form-group"><label>メモ</label>{{ form.memo }}</div>
 
-    <button type="submit" class="submit-btn">更新する</button>
-
-    <!-- <div class="task-actions" style="margin-top:12px;">
-        <a href="{% url 'schedule_list' %}" class="btn">戻る</a>
-    </div> -->
+    <button type="submit" class="submit-btn">保存</button>
+    <a href="javascript:history.back()" class="back-link">戻る</a>
   </form>
 </div>
 {% endblock %}

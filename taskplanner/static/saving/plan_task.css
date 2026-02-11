@@ -122,3 +122,16 @@
   width: 100%;      /* iOS等で崩れ防止 */
   min-width: 0;     /* はみ出し防止 */
 }
+
+.back-link {
+  display: block;
+  margin-top: 10px;
+  text-align: center;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #333;
+  text-decoration: none;
+  font-weight: bold;
+}

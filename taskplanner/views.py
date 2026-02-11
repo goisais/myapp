@@ -236,6 +236,11 @@ def plan_task_edit(request, pk):
 def plan_task_delete(request, pk):
     task = get_object_or_404(PlanTask, pk=pk, user=request.user)
     task.delete()
+
+    next_url = request.POST.get("next")
+    if next_url:
+        return redirect(next_url)
+
     return redirect(f"{reverse('plan_ai')}?open=1")
 
 

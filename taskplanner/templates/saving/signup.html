@@ -7,6 +7,7 @@
     <title>新規登録</title>
     <link rel="stylesheet" href="{% static 'saving/signup.css' %}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
 <body>
@@ -32,7 +33,7 @@
             <label>パスワード</label>
             <div class="password-box">
                 <input type="password" id="password" name="password" placeholder="パスワードを入力">
-                <span class="eye" onclick="togglePassword()">👁</span>
+                <span class="material-icons eye" id="eye" onclick="togglePassword()">visibility_off</span>
             </div>
 
             <button type="submit" class="btn">登録</button>
@@ -45,17 +46,19 @@
     </div>
 
     <script>
-        function togglePassword() {
-            const pass = document.getElementById("password");
+    function togglePassword() {
+        const pass = document.getElementById("password");
+        const eye = document.getElementById("eye");
 
-            if (pass.type === "password") {
-                pass.type = "text";
-            } else {
-                pass.type = "password";
-            }
+        if (pass.type === "password") {
+            pass.type = "text";
+            eye.textContent = "visibility";        // 開いた目
+        } else {
+            pass.type = "password";
+            eye.textContent = "visibility_off";    // 閉じた目
         }
+    }
     </script>
-
 </body>
 
 </html>

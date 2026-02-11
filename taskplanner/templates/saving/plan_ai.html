@@ -36,8 +36,8 @@
             {% if t.deadline %}{{ t.deadline|date:"m/d H:i" }}{% else %}未定{% endif %}<br>
 
             所要時間:
-            {% if t.estimated_minutes %}{{ t.estimated_minutes }}分{% else %}未定{% endif %}
-            /
+            {{ t.get_estimated_display }} /
+            
             優先度: {{ t.get_priority_display }}
 
             {% if t.memo %}

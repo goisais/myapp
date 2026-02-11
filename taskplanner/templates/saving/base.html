@@ -22,7 +22,7 @@
   <header class="app-header">
     <div class="header-inner">
       <div class="header">
-        {% block header %}ホーム{% endblock %}
+        {% block header %}予定追加{% endblock %}
       </div>
       <div class="header-links">
         <a href="{% url 'schedule_create' %}">予定を追加</a>
@@ -48,14 +48,15 @@
 
   <!-- フッター -->
   <footer class="app-footer">
-    <a href="{% url 'schedule_create' %}" class="nav-item">
-      <span class="material-icons">home</span>
-      <p>ホーム</p>
-    </a>
 
     <a href="{% url 'calendar' %}" class="nav-item">
       <span class="material-icons">calendar_month</span>
-      <p>カレンダー</p>
+      <p>ホーム</p>
+    </a>
+
+    <a href="{% url 'schedule_create' %}" class="nav-item">
+      <span class="material-icons">edit_calendar</span>
+      <p>予定入力</p>
     </a>
 
     <a href="{% url 'plan_task' %}" class="nav-item">
@@ -67,7 +68,9 @@
       <span class="material-icons">settings</span>
       <p>設定</p>
     </a>
+
   </footer>
+
 
 </body>
 
