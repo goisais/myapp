@@ -19,6 +19,7 @@ urlpatterns = [
     path("plan/suggestion/<int:pk>/edit/", views.plan_suggestion_edit, name="plan_suggestion_edit"),
     path("plan/suggestion/<int:pk>/delete/", views.plan_suggestion_delete, name="plan_suggestion_delete"),
     path("schedule/<int:pk>/edit/", views.schedule_edit, name="schedule_edit"),
+    path("schedule/<int:pk>/delete/", views.schedule_delete, name="schedule_delete"),
     path("settings/", views.settings_view, name="settings"),
     path("settings/", views.settings_view, name="settings"),
     path("settings/username/", views.settings_username_view, name="settings_username"),

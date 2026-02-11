@@ -70,15 +70,16 @@
         <div class="ai-memo">{{ s.memo }}</div>
       {% endif %}
 
-      <!-- actions を memo 行に乗せる（gridに合わせる） -->
       <div class="ai-actions">
         <a class="btn" href="{% url 'schedule_edit' s.id %}">編集</a>
 
+        <form method="post" action="{% url 'schedule_delete' s.id %}">
           {% csrf_token %}
-          <button type="submit" class="btn danger" onclick="return confirm('削除しますか？');">削除</button>
+          <button type="submit" class="btn danger" onclick="return confirm('削除しますか？');">
+            削除
+          </button>
         </form>
       </div>
-
     </div>
   {% empty %}
     <p>予定がありません</p>

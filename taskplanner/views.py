@@ -1,7 +1,7 @@
 from .forms import ScheduleForm, PlanTaskForm, PlanSuggestionForm, UsernameChangeForm, EmailChangeForm
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Schedule, PlanTask, PlanSuggestion
-from datetime import date, datetime, timedelta, timezone as dt_timezone
+from datetime import date, datetime, timedelta, time , timezone as dt_timezone
 from django.utils import timezone
 from .ai_service import ai_plan_tasks
 from django.contrib import messages
@@ -13,6 +13,14 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 import calendar
+
+
+@login_required
+@require_POST
+def schedule_delete(request, pk):
+    schedule = get_object_or_404(Schedule, pk=pk, user=request.user)
+    schedule.delete()
+    return redirect("schedule_list")
 
 
 @login_required
@@ -139,38 +147,46 @@ def schedule_edit(request, pk):
 def schedule_list_view(request):
     qs = Schedule.objects.filter(user=request.user).order_by("-date")
 
-    # --- GETパラメータ取得 ---
-    q = request.GET.get("q", "").strip()               # タイトル検索
-    priority = request.GET.get("priority", "").strip() # 優先度
-    date_from = request.GET.get("from", "").strip()    # 開始日
-    date_to = request.GET.get("to", "").strip()        # 終了日
+    q = request.GET.get("q", "").strip()
+    priority = request.GET.get("priority", "").strip()
+    date_from = request.GET.get("from", "").strip()
+    date_to = request.GET.get("to", "").strip()
 
-    # --- 絞り込み ---
     if q:
         qs = qs.filter(title__icontains=q)
 
     if priority:
-        # priorityはIntegerField想定（"1","2","3"が来る）
         try:
             qs = qs.filter(priority=int(priority))
         except ValueError:
             pass
 
+    # ✅ JSTで日付範囲を作って絞り込む（これが一番安定）
+    jst = timezone.get_current_timezone()
+
     if date_from:
-        # "YYYY-MM-DD" を DateTimeField に当てるなら __date が簡単
-        qs = qs.filter(date__date__gte=date_from)
+        try:
+            d = datetime.strptime(date_from, "%Y-%m-%d").date()
+            start_dt = timezone.make_aware(datetime.combine(d, time.min), jst)  # 00:00
+            qs = qs.filter(date__gte=start_dt)
+        except ValueError:
+            pass
 
     if date_to:
-        qs = qs.filter(date__date__lte=date_to)
+        try:
+            d = datetime.strptime(date_to, "%Y-%m-%d").date()
+            end_dt = timezone.make_aware(datetime.combine(d + timedelta(days=1), time.min), jst)  # 翌日00:00
+            qs = qs.filter(date__lt=end_dt)  # <= ではなく < にするのが安全
+        except ValueError:
+            pass
 
-    context = {
+    return render(request, "saving/schedule_list.html", {
         "schedules": qs,
         "q": q,
         "priority": priority,
         "date_from": date_from,
         "date_to": date_to,
-    }
-    return render(request, "saving/schedule_list.html", context)
+    })
 
 
 @login_required

@@ -21,15 +21,24 @@
     <div class="form-group"><label>タイトル</label>{{ form.title }}</div>
     <div class="form-group"><label>日時</label>{{ form.date }}</div>
     <div class="form-group"><label>重要度</label>{{ form.priority }}</div>
-    <div class="form-group"><label>所要時間（時間）</label>{{ form.duration_hours }}</div>
-    <div class="form-group"><label>所要時間（分）</label>{{ form.duration_minutes }}</div>
+    <div class="form-group">
+    <label>所要時間</label>
+
+    {{ form.duration }} {# hidden 保存用 #}
+
+    <div class="duration-row">
+        {{ form.duration_hours }}
+        {{ form.duration_minutes }}
+    </div>
+    </div>
 
     <div class="form-group"><label>メモ</label>{{ form.memo }}</div>
 
-    <!-- hiddenのdurationはフォーム内に入れておく（表示されない） -->
-    {{ form.duration }}
-
     <button type="submit" class="submit-btn">更新する</button>
+
+    <!-- <div class="task-actions" style="margin-top:12px;">
+        <a href="{% url 'schedule_list' %}" class="btn">戻る</a>
+    </div> -->
   </form>
 </div>
 {% endblock %}

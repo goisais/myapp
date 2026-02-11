@@ -110,3 +110,15 @@
   cursor: pointer;
   font-size: 14px;
 }
+
+/* 所要時間（時間・分）を横並び */
+.duration-row{
+  display: flex;
+  gap: 12px;
+}
+
+.duration-row select{
+  flex: 1;          /* 横に均等 */
+  width: 100%;      /* iOS等で崩れ防止 */
+  min-width: 0;     /* はみ出し防止 */
+}
