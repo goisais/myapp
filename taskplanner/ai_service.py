@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import List
-import typing_extensions as typing
+import typing
 
 from google import genai
 from google.genai import types
