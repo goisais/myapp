@@ -3,7 +3,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Schedule, PlanTask, PlanSuggestion
 from datetime import date, datetime, timedelta, time , timezone as dt_timezone
 from django.utils import timezone
-from .ai_service import ai_plan_tasks
 from django.contrib import messages
 from django.utils.dateparse import parse_datetime
 from django.views.decorators.http import require_POST
@@ -303,6 +302,7 @@ def plan_apply(request):
 @login_required
 @require_POST
 def plan_generate(request):
+    from .ai_service import ai_plan_tasks
     if request.method != "POST":
         return redirect("plan_ai")
 

@@ -13,8 +13,6 @@ MODEL_CANDIDATES = [
     "models/gemini-flash-lite-latest",
 ]
 
-client = genai.Client(api_key=settings.GEMINI_API_KEY)
-
 
 class PlanItem(typing.TypedDict):
     id: int
@@ -31,6 +29,7 @@ def ai_plan_tasks(
     window_start: str,
     window_end: str,
 ) -> List[PlanItem]:
+    client = _get_client()
     prompt = f"""
     あなたはタスク計画アシスタントです。
     目的: 既存カレンダー予定を避けて、新規タスクをスケジューリングしてください。
