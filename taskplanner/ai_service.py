@@ -1,25 +1,41 @@
 from __future__ import annotations
 
+import os
+import json
+import re
+from functools import lru_cache
 from typing import List
 import typing
 
+from django.conf import settings
 from google import genai
 from google.genai import types
-from django.conf import settings
+
+
+@lru_cache(maxsize=1)
+def _get_client() -> genai.Client:
+    # settings.py に GEMINI_API_KEY = "..." を置く想定
+    api_key = getattr(settings, "GEMINI_API_KEY", None) or os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY が未設定です（settings.py か環境変数に設定してください）")
+
+    return genai.Client(api_key=api_key)
+
 
 MODEL_CANDIDATES = [
-    "models/gemini-flash-latest",
-    "models/gemini-2.5-flash",
-    "models/gemini-flash-lite-latest",
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-2.0-flash",
 ]
 
 
-class PlanItem(typing.TypedDict):
+class PlanItem(typing.TypedDict, total=False):
     id: int
     order: int
     start_at: str
     end_at: str
     estimated_minutes: int
+    priority: int
 
 
 def ai_plan_tasks(
@@ -69,7 +85,6 @@ def ai_plan_tasks(
 
     config = types.GenerateContentConfig(
         response_mime_type="application/json",
-        response_schema=list[PlanItem],  # Python 3.11 なのでOK
     )
 
     last_err = None
@@ -79,11 +94,25 @@ def ai_plan_tasks(
                 model=model,
                 contents=prompt,
                 config=config,
-            )          
-            parsed = getattr(resp, "parsed", None)
-            if not isinstance(parsed, list):
-                raise ValueError(f"AI parsed がlistではありません: {type(parsed)}")
-            return parsed
+            )
+
+            # --- ここから：自前でJSONパース ---
+            text = getattr(resp, "text", None)
+            if not text:
+                # SDKによっては candidates から取れることもあるので保険
+                raise ValueError("AI応答に text がありません")
+
+            # たまに ```json ... ``` で返ってくる事故対策
+            text = text.strip()
+            text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text)
+
+            data = json.loads(text)
+
+            if not isinstance(data, list):
+                raise ValueError(f"AI出力がlistではありません: {type(data)}")
+
+            return data
+            # --- ここまで ---
         except Exception as e:
             last_err = e
 
